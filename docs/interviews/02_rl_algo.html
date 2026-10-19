@@ -7,8 +7,8 @@
 
 <meta name="generator" content="ARIS render-html (academic, v1)">
 <meta name="aris:source-path" content="docs/interviews/02_rl_algo.md">
-<meta name="aris:source-sha256" content="f22a515e7f6cedc7aef3ffc57d42216cb8fb57f26b5d1562344aa43adfa0407c">
-<meta name="aris:generated-at" content="2026-06-06 03:19 UTC">
+<meta name="aris:source-sha256" content="a800e031dbf843f23fd63afddc6c6e8ff390aac3b7c705047eac56f45a73b042">
+<meta name="aris:generated-at" content="2026-10-19 01:18 UTC">
 
 <!-- MathJax 3 -->
 <script>
@@ -412,8 +412,9 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 
 
 <h1 id="卷二--rl-算法--高频面试题">卷二 · RL 算法 · 高频面试题</h1>
-<blockquote><p>中文具身智能秋招高频面试题库 · <strong>第二卷</strong> 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / 强化学习算法岗面试汇编 同义题合并后 <strong>43 题</strong>（主表 40 题频次 ≥3 + 低频备选 3 题）</p></blockquote>
-<p><strong>难度分布</strong>：L1（必会） <strong>14</strong> · L2（进阶） <strong>22</strong> · L3（顶级难度） <strong>7</strong></p>
+<blockquote><p>中文具身智能秋招高频面试题库 · <strong>第二卷</strong> 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / 强化学习算法岗面试汇编 <strong>题目统计</strong>：普通问答 40 · 手撕 10 · N 备选 3 · 合计 <strong>53</strong> 个条目。</p></blockquote>
+<p><strong>难度分布（全卷，含手撕与 N 备选）</strong>：L1 <strong>16</strong> · L2 <strong>27</strong> · L3 <strong>10</strong></p>
+<blockquote><p>2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。</p></blockquote>
 <p><strong>使用方式</strong>：题目默认折叠，点开看答案。建议按 <strong>L1 → L2 → L3</strong> 顺序刷；同级内按频次从高到低。手机端原生支持。</p>
 <hr />
 <h2 id="1-策略优化基础8-题">§1 策略优化基础（8 题）</h2>
@@ -685,14 +686,11 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>DeepSeek-R1 用 GRPO</strong>：数学题可验证对错，组内对比清晰，无需 Critic；节省约 25% 显存。</p>
 <p><strong>易错</strong>：GRPO 依赖<strong>可验证奖励</strong>；纯 RM 打分场景组内方差大，advantage 估计噪声增加。</p>
 </details>
-<details class="qa">
+<details class="qa" id="q32">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q32</b> · VLA 微调中用 PPO 还是 BC？RLHF 和行为克隆的结合方式？</summary>
-<p><strong>答</strong>：<strong>当前主流</strong>：VLA 微调以<strong>行为克隆（BC）/ flow matching 为主</strong>，而非 RLHF+PPO——原因是机器人奖励函数难以自动量化、RM 训练需要大量偏好标注。</p>
-<p><strong>BC 微调路线</strong>：在演示数据上最小化 $-\log\pi_\theta(a|s, l)$（连续用 MSE/flow 损失，离散用 CE）；OpenVLA / Octo / GR00T 均走此路线。</p>
-<p><strong>PPO / RLHF 在 VLA 的尝试</strong>：</p>
-<ul><li>任务成功率作为奖励（0/1），用 PPO 微调 VLA 策略；</li><li>π0.6 的 RECAP 近似：把演示数据当 offline RL，advantage-conditioned 采样，强化"好动作"权重；</li><li>问题：① 真机 rollout 代价高；② 连续动作空间 policy 的概率比值计算不稳定；③ 收敛更慢。</li></ul>
-<p><strong>混合路线</strong>（新兴）：SFT（BC 预训练）→ 少量 RLHF 精调（成功 / 失败 episode 作偏好对） → 接近 DPO 形式。</p>
-<p><strong>易错</strong>：VLA 动作预测通常用 flow matching / diffusion 而非 softmax token，PPO 的 clip ratio 需改造为连续策略形式；不要直接套 LLM RLHF 代码到机器人 VLA。</p>
+<p><strong>答</strong>：先按数据、奖励和动作表示选方法。有示教时可用 BC，具体损失依离散动作、连续回归或 flow/diffusion 参数化而定；能获得可靠任务反馈时，再考虑 RL 后训练。PPO 需要定义可计算的动作概率和轨迹采样流程。RECAP 使用示教、自主执行及人工纠正，学习优势条件策略，推理时条件化生成较好动作。</p>
+<p><strong>易错</strong>：任务成功奖励不等于人类偏好 RLHF；RECAP 不是 PPO 或简单好样本加权，也不能把 LLM token 的概率比值直接套到任意 flow 动作头。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/2511.14759">RECAP 原论文</a>、<a href="https://arxiv.org/html/2406.09246">OpenVLA 原论文</a>。本题频次沿用历史记录，本轮只修订答案。</p>
 </details>
 <hr />
 <h2 id="7-工程-tricks-与机器人-rl8-题">§7 工程 tricks 与机器人 RL（8 题）</h2>
@@ -712,14 +710,11 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>自动课程（ACL）</strong>：不人工设计难度，用 competence-progress 信号（最近成功率变化量）自动选下一批任务；ALP-GMM 是经典实现。</p>
 <p><strong>易错</strong>：课程不能"难度跳跃"——若简单任务能力尚未泛化就进入难任务，容易 catastrophic forgetting；Critic 从 easy 到 hard 的价值估计分布会剧变，需要特殊处理。</p>
 </details>
-<details class="qa">
+<details class="qa" id="q35">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×7</span> <b>Q35</b> · Domain Randomization（DR）是什么？为什么有助于 Sim2Real 迁移？</summary>
-<p><strong>答</strong>：<strong>Domain Randomization（DR）</strong>：在仿真训练中随机化物理参数（摩擦系数、质量、关节阻尼、视觉参数如光照/纹理），迫使策略在宽范围条件下仍有效。</p>
-<p><strong>为什么有助于 Sim2Real</strong>：真实环境的精确参数未知，但只要真实参数<strong>落在仿真随机化范围内</strong>，策略就能泛化。训练出来的策略对参数变化鲁棒，本质上是一种多任务训练。</p>
-<p><strong>两类 DR</strong>：</p>
-<ul><li><strong>视觉 DR</strong>：光照/颜色/纹理/相机参数 → 让视觉策略不对仿真纹理过拟合</li><li><strong>物理 DR</strong>：质量/摩擦/弹性/延迟 → 让控制策略对动力学不确定性鲁棒</li></ul>
-<p><strong>OpenAI Dactyl (2019)</strong>：纯仿真训练（+ 大量 DR）直接迁移到真实五指手完成魔方，是 DR 的里程碑。</p>
-<p><strong>易错</strong>：DR 不是"随机化越大越好"——过度随机化使任务太难学（策略在过于宽泛的参数空间无法收敛）；需要配合 adaptive DR 或 curriculum DR（逐步扩大范围）。</p>
+<p><strong>答</strong>：在仿真训练中随机化外观、动力学、传感器噪声和延迟，降低策略对单一仿真条件的依赖。范围应由真实测量和失效分析指导，并用保留场景检验迁移。可从较窄范围逐步扩展，或用真实数据估计随机化分布；同时核查接触模型、观测与控制接口是否匹配。</p>
+<p><strong>易错</strong>：真实参数落在随机化区间内不保证泛化；模型结构失配、未覆盖的组合、尾部事件和训练不足仍会导致失败。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/1710.06537">动力学随机化原论文</a>、<a href="https://arxiv.org/abs/2201.08434">DROPO 原论文</a>。本题频次沿用历史记录，本轮只修订答案。</p>
 </details>
 <details class="qa">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q36</b> · Reward Shaping 的势能函数条件是什么？为什么违反会导致最优策略偏移？</summary>
@@ -766,9 +761,9 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 </details>
 <hr />
 <h2 id="8-低频备选3-题">§8 低频备选（3 题）</h2>
-<blockquote><p>频次 1-2 题，来源有效但低于主表阈值。面试中作为扩展题备用。</p></blockquote>
+<blockquote><p>旧版列为低频备选；原始次数与题源本轮未重核，展示为“历史低频·待核”。</p></blockquote>
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N1</b> · 【低频备选】Distributional RL（C51 / QR-DQN）是什么？为什么比期望 Q 更强？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · 【低频备选】Distributional RL（C51 / QR-DQN）是什么？为什么比期望 Q 更强？</summary>
 <p><strong>答</strong>：<strong>分布式 RL</strong>：不仅学期望 $\mathbb{E}[G_t]$，而是学<strong>回报的完整分布</strong> $Z(s,a)$（随机变量）。</p>
 <p><strong>C51（Bellemare 2017）</strong>：把回报分布离散为 51 个 atom，学 $P(Z(s,a) = z_i)$；Bellman 更新也在分布空间做（投影 Bellman）。</p>
 <p><strong>QR-DQN（Dabney 2018）</strong>：用分位数回归估计回报分布的分位点 $\tau_1, \ldots, \tau_N$。</p>
@@ -776,7 +771,7 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>易错</strong>：分布式 RL 的"分布"是<strong>回报的分布</strong>（随机性来自环境），不是策略的分布（策略熵）；两者完全不同概念。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N2</b> · 【低频备选】RLPD（Reinforcement Learning with Prior Data）和纯 SAC 有何不同？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · 【低频备选】RLPD（Reinforcement Learning with Prior Data）和纯 SAC 有何不同？</summary>
 <p><strong>答</strong>：<strong>RLPD（Ball 2023）</strong>：解决"如何在 online RL 中高效利用 offline 先验数据"——把离线数据塞进 replay buffer 一起训练，但做了关键改进：</p>
 <p><strong>与纯 SAC + offline data 的区别</strong>：</p>
 <ol><li><strong>Symmetric sampling</strong>：每个 mini-batch 50% 来自 offline 数据、50% 来自 online 数据，保证离线先验持续发挥作用；</li><li><strong>Critic LayerNorm + ensemble</strong>：LayerNorm 防止 Q 值过度外推到 OOD 区域；ensemble 提供多头保守估计；</li><li><strong>高 UTD（Update-to-Data=20）</strong>：每采 1 步环境数据做 20 次梯度更新；配合 LayerNorm 才不发散。</li></ol>
@@ -785,7 +780,7 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>易错</strong>：裸 SAC 提高 UTD 会发散；RLPD 的 LayerNorm + ensemble 是高 UTD 稳定的关键，缺一不可。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N3</b> · 【低频备选】Multi-step PPO / APPO（Asynchronous PPO）在大规模分布式训练中怎么用？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 【低频备选】Multi-step PPO / APPO（Asynchronous PPO）在大规模分布式训练中怎么用？</summary>
 <p><strong>答</strong>：<strong>APPO（Sample Factory, PureJaxRL 等）</strong>：将 PPO 的数据收集与策略更新解耦，多个 actor 进程异步采集数据，learner 进程持续更新策略。</p>
 <p><strong>关键设计</strong>：</p>
 <ul><li>Actor 进程运行旧版本策略收集数据（略微 off-policy）；</li><li>Learner 不等所有 actor 完成，收到足够 batch 就更新；</li><li>用 IS ratio 或 V-trace（IMPALA）纠正 off-policy 误差。</li></ul>
@@ -1041,8 +1036,8 @@ def manual_log_prob(logits, a):
 <footer class="aris-footer">
   Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
   source path <code>docs/interviews/02_rl_algo.md</code> ·
-  SHA256 <code>f22a515e7f6c</code> ·
-  generated at 2026-06-06 03:19 UTC.
+  SHA256 <code>a800e031dbf8</code> ·
+  generated at 2026-10-19 01:18 UTC.
   This is a generated view — edit the source Markdown, then re-render.
 </footer>
 </main>

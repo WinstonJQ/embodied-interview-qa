@@ -10,3 +10,8 @@ node_modules/
 .claude/skills/
 .claude/settings.local.json
 .aris/
+
+# Local research, update reports and agent instructions
+/notes/update-*/
+/docs/updates/
+/AGENTS.md

@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第一卷**
 > 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / 算法岗面试题汇编
-> 同义题合并后 **48 题**（主表 44 题频次 ≥3 + 低频备选 3 题 + 补充 1 题）
+> **题目统计**：普通问答 45 · 手撕 10 · N 备选 3 · 合计 **58** 个条目。
 
-**难度分布**：L1（必会） **22** · L2（进阶） **24** · L3（顶级lab） **2**
+**难度分布（全卷，含手撕与 N 备选）**：L1 **25** · L2 **31** · L3 **2**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -769,7 +771,7 @@ $$T = \begin{bmatrix} R_{3\times3} & p_{3\times1} \\ 0_{1\times3} & 1 \end{bmatr
 > 以下题目在面经中出现频次低（1-2 次），或来源单一。用户可根据目标岗位选入。
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N1</b> · 什么是 Group Normalization（GN）？它和 BN/LN 有什么区别？【低频备选未入主表】</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · 什么是 Group Normalization（GN）？它和 BN/LN 有什么区别？【低频备选未入主表】</summary>
 
 **答**：**GN** 在同一样本的特征通道上分组归一化（同一样本内每 $G$ 个通道一组），不依赖 batch size（与 LN 类似），但归一化粒度比 LN 细（LN 是全部通道一起归一化）。
 
@@ -782,7 +784,7 @@ $$T = \begin{bmatrix} R_{3\times3} & p_{3\times1} \\ 0_{1\times3} & 1 \end{bmatr
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N2</b> · 什么是 Curriculum Learning（课程学习）？在机器人任务训练中怎么应用？【低频备选未入主表】</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · 什么是 Curriculum Learning（课程学习）？在机器人任务训练中怎么应用？【低频备选未入主表】</summary>
 
 **答**：**课程学习**：模仿人类教育的"先易后难"——让模型从简单样本/任务开始训练，逐步增加难度，最终收敛到完整任务分布。可以手动设计难度梯度，也可自动（Auto Curriculum，用成功率或 episodic return 驱动）。
 
@@ -795,7 +797,7 @@ $$T = \begin{bmatrix} R_{3\times3} & p_{3\times1} \\ 0_{1\times3} & 1 \end{bmatr
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×1</span> <b>N3</b> · 什么是 Spectral Normalization（谱归一化）？在机器人策略训练中有什么用？【低频备选未入主表】</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 1 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 什么是 Spectral Normalization（谱归一化）？在机器人策略训练中有什么用？【低频备选未入主表】</summary>
 
 **答**：**谱归一化**：将每个权重矩阵 $W$ 除以其最大奇异值（谱范数）$\sigma_{max}(W)$，使 Lipschitz 常数 $\leq 1$：$\hat{W} = W / \sigma_{max}(W)$。
 
@@ -811,7 +813,7 @@ $$T = \begin{bmatrix} R_{3\times3} & p_{3\times1} \\ 0_{1\times3} & 1 \end{bmatr
 
 ## §H 手撕代码（10 题）
 
-> 与上文"概念+答案"题区分开的**手撕实现**段。本节每题给"考察点 / 实现 / 易错"——附 ≤30 行 Python 实现，关键处中文注释。题源来自公开手撕题面经合并统计（详见 `notes/handcoding_research.md`）。
+> 与上文"概念+答案"题区分开的**手撕实现**段。本节每题给"考察点 / 实现 / 易错"——附 ≤30 行 Python 实现，关键处中文注释。题源来自公开手撕题面经合并统计。
 
 <details class="qa qa-handcoding">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×15</span> <b>✍ H01</b> · 手撕 scaled dot-product attention</summary>

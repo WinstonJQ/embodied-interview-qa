@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第五卷**
 > 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / NVIDIA 技术博客 / arXiv 工程论文
-> 同义题合并后 **42 题**（主表 39 题：频次 ≥3 + 低频备选 3 题）
+> **题目统计**：普通问答 54 · 手撕 8 · N 备选 3 · 合计 **65** 个条目。
 
-**难度分布**：L1（必会） **3** · L2（进阶） **31** · L3（顶级/开放） **5** （含开放题 4 题 L3；低频备选另计）
+**难度分布（全卷，含手撕与 N 备选）**：L1 **8** · L2 **52** · L3 **5**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -14,74 +16,47 @@
 
 > 机器人系统的骨架：三层架构 + 实时性约束 + 通信中间件 + 任务编排。
 
-<details class="qa">
+<details class="qa" id="q01">
 <summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×7</span> <b>Q01</b> · 感知-规划-控制三层架构各层的实时性要求是什么？为什么不能统一成一个频率？</summary>
 
-**答**：三层频率由物理约束决定，不可合并：
-- **控制层（1 kHz）**：直接驱动关节电机，PID/阻抗控制环要以 1 ms 周期计算力矩，否则关节振荡（实测>2 ms 伺服驱动器异常）
-- **规划层（10-100 Hz）**：运动学/动力学规划、轨迹生成；受限于求解器耗时（IK 约 1-5 ms/次）
-- **感知层（30 Hz）**：相机帧率 + 深度处理约 33 ms，网络推理延迟 20-100 ms（VLA）
+**答**：频率由被控对象带宽、传感器更新、计算延迟和允许的状态陈旧度共同决定。电机驱动或关节伺服通常比视觉感知和任务规划更快，但具体数值依硬件与接口确定。常用异步分层：感知输出带时间戳的状态，策略输出目标或动作块，实时控制器在自己的周期跟踪，并处理超时和约束。
 
-**不能合并**：感知 30 Hz 远不够控制（电机需 1 kHz），若等感知完成再发控制命令，关节力矩 gap 33 ms → 振荡甚至摔倒。实际做法：**层间异步 + 状态预测**——控制层用上一次规划输出做插值，感知层独立更新感知状态。
+**易错**：动作执行频率、策略调用频率和底层伺服频率不能混为一谈；VLA 可以输出连续动作目标，不只输出任务指令。
 
-**易错**：VLA 推理 6 Hz 接的是规划层（发任务指令/动作 chunk），不是直接替换 1 kHz 控制层；底层力矩控制仍需专用实时控制器。
+**核验**：[ROS 2 实时编程说明](https://design.ros2.org/articles/realtime_background.html)、[RTC 作者说明](https://www.pi.website/research/real_time_chunking)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q02</b> · ROS2 vs 自研中间件：大公司为什么不直接用 ROS2 做生产系统？DDS 的优缺点是什么？</summary>
+<details class="qa" id="q02">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q02</b> · 机器人生产系统如何评估 ROS 2 和自研中间件？DDS 与实时性有哪些边界？</summary>
 
-**答**：
-**DDS（Data Distribution Service）**：ROS2 底层通信标准，pub/sub + QoS 策略（RELIABILITY/DEADLINE/LIVELINESS）；自动发现节点、支持多机。
+**答**：ROS 2 提供通信、工具与组件生态；常见 DDS 实现支持发现和 QoS，其他通信实现也须按发行版核对。生产是否采用取决于最坏延迟、抖动、可靠性、部署约束和可维护性。实时表现是内核、调度、执行器、内存、驱动与通信的系统属性，可将关键控制路径与非实时感知/服务隔离，再测目标周期下的时限违约率。
 
-**ROS2 优点**：生态丰富（rviz/rosbag/Nav2）、开发快、社区活跃；**缺点**：
-- DDS 序列化开销约 50-200 µs，高频（1 kHz）控制环难以接受
-- GC + Python 节点延迟不确定性
-- 不支持确定性硬实时（需 PREEMPT-RT 内核补丁才能接近）
+**易错**：不能断言“大公司不用 ROS 2”或给 DDS 固定微秒延迟；PREEMPT_RT 不是单独的保证，EtherCAT 也不是替代操作系统的实时调度器。
 
-**大公司自研原因**：① 降低关键控制路径延迟（自研共享内存 IPC < 1 µs）；② 系统级安全性（watchdog / 故障隔离）；③ 专有数据格式与 CI/CD 集成。
-
-**实际选择**：研究/仿真阶段用 ROS2，量产前把控制关键路径替换为共享内存 + 自研调度；ROS2 保留为上层工具链（录包/可视化）。
-
-**易错**：ROS2 不是实时系统，即使加 PREEMPT-RT 也只能做软实时（~1 ms 抖动）；硬实时（< 100 µs 抖动）需专用 RTOS 或 EtherCAT。
+**核验**：[ROS 2 实时编程说明](https://design.ros2.org/articles/realtime_background.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q03">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q03</b> · 状态机（FSM）和行为树（BT）在机器人任务编排中的区别？各有什么适用场景？</summary>
 
-**答**：
-| | FSM | 行为树（BT） |
-|---|---|---|
-| 结构 | 状态 + 转移函数，扁平图 | 树形层次，Selector/Sequence/Decorator |
-| 复杂度 | 状态多时"状态爆炸" | 组合子模块，扩展性好 |
-| 可读性 | 简单任务直观 | 复杂任务更清晰 |
-| 中断 | 全局事件触发状态跳转 | Subtree 级打断，细粒度 |
-| 调试 | 单状态易定位 | 树遍历可视化好 |
+**答**：FSM 用状态与转移表达流程，少量明确状态时容易实现与验证；行为树用条件、动作和控制节点组合任务，便于复用、响应条件变化和组织回退。选型取决于流程复杂度、中断语义与可观测性。机器人 Agent 也可在更高层选择工具或技能，由 FSM/BT/控制器落实执行；这些层可以共存。
 
-**适用**：FSM → 状态少、转移清晰的控制逻辑（如抓取的 "等待/运行/完成"）；BT → 多任务序列 + 条件检查 + 回退（如"先找目标 → 接近 → 抓取 → 失败则重规划"）。
+**易错**：行为树不天然解决所有中断，也不能断言 VLA 指令通常都会先转成 BT；工具返回成功仍须结合物理状态判断任务是否完成。
 
-**现代趋势**：BT 已成具身机器人任务编排主流（ROS2 BehaviorTree.CPP / Nav2），VLA 的语言指令通常解析为 BT 节点序列。
-
-**易错**：BT 不是"更好的 FSM"，状态少时 FSM 更简洁；BT 的 tick 机制（每帧重新遍历）有轻微计算开销。
+**核验**：[Nav2 行为树说明](https://docs.nav2.org/rolling/getting_started/navigation_concepts/behavior_trees/)、[Thea 技术报告](https://eit-hai.github.io/thea/index.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q04">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q04</b> · 共享内存 vs 消息队列 vs ROS2 Topic，在低延迟控制回路中应该选哪种？</summary>
 
-**答**：
-| 方式 | 单次通信延迟 | 吞吐 | 适用层 |
-|---|---|---|---|
-| 共享内存（mmap/posix） | < 1 µs | 极高 | 1 kHz 控制回路 |
-| 消息队列（LCM/ZMQ） | ~10-50 µs | 高 | 规划层（10-100 Hz） |
-| ROS2 Topic（DDS） | 50-500 µs | 中 | 感知/工具层（≤ 30 Hz） |
+**答**：先按最坏延迟、抖动、负载和故障语义选通信路径。共享内存减少复制但要设计所有权、同步与进程故障处理；消息队列提供解耦和背压；ROS 2 Topic 提供类型、QoS 与生态集成。关键控制链路还应检查调度优先级、内存分配、锁竞争与数据时效，并在目标硬件压力下测量。
 
-**实际分层**：控制关键路径（关节状态 ↔ 力矩指令）→ 共享内存，加 spinlock；规划 ↔ 控制 → LCM/ZMQ（10 Hz）；感知结果 → ROS2 Topic（30 Hz）。
+**易错**：通信方式不能对应固定微秒数字。直接禁用抢占或无界自旋可能拖住实时任务；双缓冲也必须有正确的发布与读取同步协议。
 
-**关键设计**：控制线程固定 CPU core（CPU affinity）+ 禁用抢占，共享内存 double buffer 防读写冲突。
-
-**易错**：共享内存需手动处理并发安全，不加锁或用错锁（如 mutex 导致 priority inversion）反而更慢甚至死锁。
+**核验**：[ROS 2 实时编程说明](https://design.ros2.org/articles/realtime_background.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -106,57 +81,36 @@
 
 > VLA 推理慢是当前最高频工程面试话题；量化/TensorRT/Jetson/蒸馏覆盖 80% 考点。
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q06</b> · VLA 推理为什么慢（只有 6 Hz）？有哪些主流提速路线？</summary>
+<details class="qa" id="q06">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q06</b> · VLA 推理有哪些瓶颈？自回归动作与扩散／Flow 动作头如何分别提速？</summary>
 
-**答**：**根本原因**：VLA 基于自回归 LLM，动作 7 维离散化 → **7 token 串行解码**，7B VLA 单步约 150-200 ms，控制频率 ≤ 6 Hz。
+**答**：先做分段 profiling：视觉编码、主干条件编码、动作 token 解码或扩散/flow 迭代、传输和控制等待。AR 策略可考虑动作压缩或并行回归；迭代动作头可考虑减少采样步数或蒸馏；再评估量化、算子融合和异步动作块执行。方案应以目标硬件上的任务成功率、尾延迟和闭环稳定性验收。
 
-**主流提速路线**：
-1. **并行动作头**：OpenVLA-OFT、GR00T N1 同时解码所有维度，7 次串行 → 1 次 forward（显著加速）
-2. **量化**：INT8 PTQ → 7B 权重 ~14 GB（FP16）→ ~7 GB（INT8），推理显存 8-10 GB，吞吐提升 30-50%
-3. **Token 压缩**：π0-FAST 用 DCT + BPE 把 chunk 压成约 10-20 token，减少 AR 步数
-4. **视觉特征复用**：跳帧更新视觉 token，减少 ViT forward 次数
-5. **投机解码**：小 draft 模型先猜 k 个 token，大模型并行验证
+**易错**：VLA 不全是自回归模型，GR00T/π0 类迭代动作头也不等于“一次 forward”；FAST 压缩动作不保证比 flow 解码更快。
 
-**易错**：提速不等于升硬件——AR 串行是架构瓶颈；需并行化或 token 压缩才能根本提速。
+**核验**：[OpenVLA-OFT 作者页](https://openvla-oft.github.io/)、[FAST 作者说明](https://www.pi.website/research/fast)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q07">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q07</b> · INT8 / FP16 / AWQ / GPTQ 量化的区别？机器人推理部署推荐哪种？</summary>
 
-**答**：
-| 量化方案 | 粒度 | 精度损失 | 工具链 | 典型场景 |
-|---|---|---|---|---|
-| **FP16** | 全精度半精度 | 极小 | PyTorch AMP | 训练/A100 推理基线 |
-| **INT8 PTQ** | 逐层 / 逐 channel | 小（VLA 可接受） | TensorRT / ONNX | Jetson Orin 边缘部署 |
-| **AWQ** | 逐 channel，权重感知 | 极小（比 GPTQ 稳） | AutoAWQ | LLM/VLA INT4 |
-| **GPTQ** | Block-wise 二阶优化 | 小 | AutoGPTQ | LLM INT4，离线量化 |
+**答**：FP16/BF16 是浮点精度，不是量化算法；INT8 是表示精度，可配 PTQ 或 QAT。AWQ 利用校准激活寻找敏感通道，通过等价缩放降低低比特权重量化误差；GPTQ 用近似二阶信息逐步补偿权重量化误差。选择须同时考虑目标芯片内核、权重/激活精度、运行时内存及机器人闭环精度。
 
-**机器人推荐**：
-- 云端/工作站（A100/H100）→ BF16 训练 + FP16 推理
-- Jetson Orin AGX（64GB）→ **INT8 PTQ（TensorRT）**：7B VLA 约 8-10 GB 显存，推理 8-12 Hz
-- 更极限边缘（< 16 GB）→ AWQ INT4：7B → ~4 GB，但精度需验证
+**易错**：AWQ 并非简单把显著通道保留为不量化；AWQ/GPTQ 不等于只能 INT4，也不能预先保证谁更稳或给出通用 Hz。
 
-**易错**：AWQ 和 GPTQ 都是 INT4 量化，AWQ 保护"显著权重"通道不量化，精度更稳；不要把 PTQ 和 QAT 混淆（QAT 需重新训练，精度最高但成本高）。
+**核验**：[AWQ 原论文](https://arxiv.org/abs/2306.00978)、[GPTQ 原论文](https://arxiv.org/abs/2210.17323)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q08</b> · TensorRT vs ONNX Runtime vs TorchScript：机器人部署场景如何选型？各有什么局限？</summary>
+<details class="qa" id="q08">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q08</b> · TensorRT、ONNX Runtime 与 PyTorch 导出／编译路径如何选？旧 TorchScript 工程怎么处理？</summary>
 
-**答**：
-| 框架 | 优势 | 局限 | 适用场景 |
-|---|---|---|---|
-| **TensorRT** | NVIDIA GPU 最优（层融合/kernel 选择），FP16/INT8 加速最佳 | 仅 NVIDIA GPU，编译耗时，算子覆盖有限 | Jetson/DGX 部署 VLA 推理 |
-| **ONNX Runtime** | 跨平台（CPU/GPU/ARM），生态广，导出简单 | 不如 TensorRT 极致，部分 custom op 不支持 | x86 边缘盒 / 非 NVIDIA 平台 |
-| **TorchScript** | 无需外部框架，直接 Python → C++ | 优化有限，JIT 图不稳定，性能弱于 TRT | 原型/调试/快速部署 |
+**答**：TensorRT 面向 NVIDIA 平台，需核对算子、动态形状和构建配置；ONNX Runtime 通过不同执行后端适配多平台；PyTorch 的 torch.export 捕获可供后端处理的图，torch.compile 用于编译优化。既有 TorchScript 工程可维护兼容，新项目应优先核对当前导出及部署路径，端侧可进一步评估 ExecuTorch。
 
-**典型工作流**：PyTorch 训练 → ONNX 导出（中间格式）→ TensorRT 编译（Jetson 部署）。
+**易错**：TorchScript 已被官方弃用，不宜继续作为新项目默认推荐；torch.export、ONNX 是图表达/导出路径，与具体推理运行时承担的职责不同。
 
-**VLA 特殊挑战**：LLM 的 KV cache / 动态 shape 不易导出 ONNX；通常用 TensorRT-LLM（专为 LLM 优化的 TRT 版本）或 vLLM（服务器端）。
-
-**易错**：TorchScript 不是推理框架，只是序列化格式；不要把 TorchScript 当成 TRT 的替代品用于生产。
+**核验**：[PyTorch 官方弃用说明](https://pytorch.org/blog/pytorch-2-12-release-blog/)、[Torch-TensorRT legacy 文档](https://docs.pytorch.org/TensorRT/legacy.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -196,19 +150,14 @@
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q11">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q11</b> · Flash Attention 在 VLA 推理中的收益是什么？KV cache 在 VLA 长 context 场景的必要性与局限？</summary>
 
-**答**：**Flash Attention**（Dao et al., 2022）：分块计算注意力，不在 HBM 存储完整 $QK^T$ 矩阵，将内存从 $O(L^2)$ 降至 $O(L)$，同时减少 HBM 读写次数 → **VLA 长序列（图像 token ~256 + 文本 + 历史 chunk）推理速度提升 2-4×**，显存节省显著。
+**答**：FlashAttention 分块计算精确注意力，减少显存读写与中间注意力矩阵存储，标准 dense attention 的二次算术量并未消失。KV cache 保存已处理前缀的 K/V，避免自回归解码重复投影；每个新 token 仍需关注历史，生成整段序列的注意力计算通常仍是二次量级。缓存内存按实际缓存 token 数增长。
 
-**KV Cache 必要性**：自回归解码时，每次生成新 token 都要重算历史 key/value → KV cache 把历史 K, V 缓存，只算新 token 的 Q，从 $O(n^2)$ 降到 $O(n)$，推理速度提升约 5-10×。
+**易错**：动作块覆盖 50 个控制步，不等于缓存里新增 50 帧视觉 token；跨观测复用还取决于位置、掩码及条件是否改变。激活重计算也不是 KV cache 的替代品。
 
-**VLA 中的局限**：
-- 视觉 token（图像 ~256）× H=50 chunk × 推理步数 → KV cache 线性增长，Jetson 64 GB 统一内存可能撑不住长任务
-- 每步动作需要**更新** KV（新观测 token），非纯生成场景，cache 命中率低于 NLP
-- 解决方案：Sliding Window Attention（只缓存最近 K 步）或 Chunk-wise 更新
-
-**易错**：Flash Attention 是训练/推理都有收益的算子优化，不是专门给推理用的；KV cache 是推理专属（训练用 gradient checkpointing 替代）。
+**核验**：[FlashAttention 原论文](https://arxiv.org/abs/2205.14135)、[Hugging Face 缓存说明](https://huggingface.co/docs/transformers/cache_explanation)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -605,20 +554,14 @@
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q33">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×3</span> <b>Q33</b> · VLA 推理时序抖动（Inference Jitter）如何影响控制？有哪些工程解决方案？</summary>
 
-**答**：**问题**：VLA 推理延迟不固定（如均值 100 ms，标准差 20 ms），控制器收到动作指令的时刻不确定 → 关节速度跳变 → 轻则轨迹抖动，重则触发安全限位急停。
+**答**：先测观测年龄、排队、预处理、推理、通信及控制执行的延迟分布，而非只看均值。动作块异步生成时维护绝对时间与执行位置，检测过期、缺块和超时；RTC 等方法让新块与已承诺动作对齐。再检查控制器的速度/加速度限制、缓冲下溢与停止/保持策略，并用实际负载压力测试。
 
-**影响分析**：若控制器按 1 kHz 插值 VLA 的 chunk 动作，当下一个 chunk 延迟到达，插值无法外推过长时间 → 动作"卡住"或突变；若插值时间超过 chunk 覆盖时域，末端处于未定义状态。
+**易错**：双缓冲或平滑并不自动消除新旧块冲突；较长块也可能增加观测陈旧。抖动可能来自调度、驱动、网络或设备，不能一概排除硬件。
 
-**工程解决方案**：
-1. **Double Buffering + 预取**：控制器维护两个 chunk buffer，当前 chunk 执行时，后台异步请求下一个；推理时间 < chunk 执行时间（H × Δt）时抖动透明
-2. **时间戳对齐**：VLA 输出动作时附带时间戳，控制器按绝对时间执行而非相对偏移
-3. **速度平滑器**：最终动作前过一个速度限幅滤波器（max velocity / max acceleration），截断因时序抖动引起的瞬时加速度峰值
-4. **Padding 策略**：chunk 设计时末尾几帧动作与上一段对齐（零加速度），给推理预留 buffer
-
-**易错**：时序抖动不是"硬件故障"，是软件调度问题；加大 chunk H 可增加推理容忍时间，但增加 open-loop 误差。
+**核验**：[RTC 作者说明](https://www.pi.website/research/real_time_chunking)、[ROS 2 实时系统设计](https://design.ros2.org/articles/realtime_background.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -628,134 +571,325 @@
 
 > 无标准答案，考察工程判断力和技术视野；答题骨架 + 必谈点 + 加分点。
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q34</b> · 遥操 + 模仿学习为什么在 2024-2026 成为具身智能的主流范式？</summary>
+<details class="qa" id="q34">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q34</b> · 遥操示教 + 模仿学习有哪些工程优势和局限？</summary>
 
-**答**：
+**答**：遥操作提供与机器人观测对齐的动作示教，可先用 BC、ACT、diffusion/flow 等方法建立任务基线，省去早期大量探索与奖励设计。数据采集、质量检查和真机评测也较易形成可控流程。但示教覆盖、重置成本、跨本体迁移和分布偏移仍是限制；可结合仿真、离线数据及 RL 后训练逐步补足。
 
-**答题骨架**：技术可行 × 成本合理 × 替代路线局限。
+**易错**：不存在统一最优范式或固定“几个月胜过几年”的周期；自主执行数据采集与人工遥操要分开说明，RL 也不只是对 BC 模型简单套 PPO。
 
-**必谈点**：
-- **技术可行**：ALOHA（2023）证明 50 demos 即可训出可用策略，ACT/Diffusion Policy 降低了 BC 的数据门槛；teleop 设备（leader-follower）成本降至 5000 USD 内（Lerobot）
-- **替代路线不成熟**：① RL 在真机上 sample efficiency 太差，reset 成本无法接受；② sim2real gap 对精细操作（< 5 mm 精度）仍难突破；③ 互联网视频无动作标签，无法直接训策略
-- **数据质量可控**：人工演示天然包含"任务意图"，不需要奖励函数设计
-- **产业节奏匹配**：2024-2026 是量产前的快速验证期，teleop 是最快闭环路径（3-6 个月出成果 vs RL 1-2 年）
-
-**加分点**：自主数据采集（夜间无人 teleop 集群）和 RL 精调（π 的 RECAP 思路）开始在 teleop 之上叠加，但 IL 仍是 backbone。
-
-**易错**：不要说"teleop 是最终范式"——它是当前窗口期的最优解，最终仍需 RL 或世界模型补足长尾。
+**核验**：[ACT 原论文](https://arxiv.org/html/2304.13705)、[RECAP 原论文](https://arxiv.org/abs/2511.14759)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q35">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×6</span> <b>Q35</b> · VLA 端到端方案 vs 传统模块化方案：2026 年你会怎么选？</summary>
 
-**答**：
+**答**：从任务多样性、可用数据、精度、时延、调试成本及验收约束比较。模块化便于逐层诊断和复用已知几何/控制结构；VLA 可学习语言与视觉条件到动作的映射，但泛化与恢复需实测。可以组合高层模型、技能/策略和底层控制，先定义接口与故障归属，再以同任务、同预算比较成功率和成本。
 
-**答题骨架**：场景驱动选型，不是"哪个好"而是"什么条件下用哪个"。
+**易错**：VLA 不必只负责高层规划，也并非天然解决长尾；端到端策略可以输出关节目标，各层控制频率不能统一写死。
 
-**模块化优势**：每个模块独立可调试（感知 mAP、规划路径、控制精度分开评估）；单模块更新无需全栈重训；成熟工具链（SLAM/RRT/PID）。**适合**：确定性高、任务明确、需要可解释性（工业机器人、安全认证场景）。
-
-**VLA 端到端优势**：处理模糊指令和长尾场景（语言泛化）；无需手工设计感知-规划接口；隐式世界知识（物理常识）迁移；任务多样性扩展无需重写模块。**适合**：家庭服务机器人、灵巧操作、多任务通用场景。
-
-**2026 视角的折中选择**：
-1. 底层控制（1 kHz PID/阻抗）仍保留模块化（实时性要求）
-2. 任务规划层（哪步做什么）用 VLA / LLM（语言泛化）
-3. 中层轨迹生成（Diffusion Policy / Flow Matching）半端到端
-4. 即"**快慢双系统**"：VLA 作 slow thinking（10-30 Hz），专用控制器作 fast reaction（1 kHz）
-
-**加分点**：Figure 的 Helix 就是典型快慢双系统架构；π0 也是 VLM + 独立 Action Expert。
-
-**易错**：不要说"端到端一定优于模块化"——端到端的 failure mode 更难 debug，工程可靠性要求高的场景反而不适合。
+**核验**：[Helix 02 官方说明](https://www.figure.ai/news/helix-02)、[PyRUA-Lean 原论文](https://arxiv.org/abs/2610.01939)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q36">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q36</b> · 如果给你 2 台 A100（80GB × 8）、3 个月，从零搭建一套 Humanoid VLA pipeline，你的规划是什么？</summary>
 
-**答**：
+**答**：先澄清“2台”指服务器还是GPU，以及是否每台8张80GB A100；再确认本体、数据、团队、可用时段与交付范围。第一阶段跑通采集—训练—回放—受控真机基线；第二阶段围绕失败类型补数据与适配模型；第三阶段固定保留任务做鲁棒性、恢复和部署验收。按实测显存、吞吐与数据质量选择模型和微调方法。
 
-**答题骨架**：目标拆解 → 里程碑规划 → 技术选型 → 风险对冲。
+**易错**：资源数量和交付范围未清楚前不能承诺成功率；桌面双臂原型不等于全身 humanoid pipeline，参数量也不能单独确定能否全参微调。
 
-**月度规划**：
-- **Month 1（数据 + 基础设施）**：teleop 平台搭建（leader-follower 双臂）→ 1000 demos 采集（10 种任务）→ 数据管道（录制/清洗/标注）→ 训练脚本（VLA backbone 选 OpenVLA 7B 或 GR00T-N1 开源版）→ 基线评估（BC on 5 tasks）
-- **Month 2（训练 + 微调）**：ZeRO-2 + BF16 + Flash Attention 训练流水线 → LoRA 微调（A100 × 8 约 7B 全参微调或 LoRA）→ 量化（INT8 TensorRT）→ 真机推理（Jetson Orin or 工作站）→ 3 任务 > 70% 成功率里程碑
-- **Month 3（评估 + 工程化）**：多任务泛化测试 → sim2real gap 定位 → 控制振荡调参 → 安全机制（力矩限位）→ 演示 pipeline
-
-**技术选型**：backbone 用 OpenVLA 或 GR00T-N1（开源，社区支持）；策略头用 Flow Matching（训练稳，Jetson 部署快）；teleop 用 Lerobot leader-follower（< 5000 USD）。
-
-**风险对冲**：硬件故障预留 10% 时间；sim2real gap 难过时退回仿真评估；3 个月无法做全身控制，聚焦桌面操作。
-
-**易错**：不要答"先找最好的模型"——资源有限时数据质量 > 模型规模；1000 个高质量 demos 比 10000 个低质量 demos 有用。
+**核验**：[OpenVLA 原论文](https://arxiv.org/html/2406.09246)、[TorchData StatefulDataLoader](https://github.com/meta-pytorch/data/blob/main/torchdata/stateful_dataloader/README.md)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q37</b> · 具身智能 2025-2028 三年路线图：你看好哪条技术路线？为什么？</summary>
+<details class="qa" id="q37">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q37</b> · 讨论未来几年的具身技术路线时，怎样区分证据、假设与验证计划？</summary>
 
-**答**：
+**答**：先定义要解决的任务、成本和可靠性目标，再区分已发表结果、尚待验证的假设与自己的路线选择。示教预训练、RL 后训练、仿真/合成数据及模型编排已有不同设定的研究；可选择其中一条提出可测里程碑，如保留场景成功率、人工介入率与每次成功成本，并解释失败时的替代方案。
 
-**答题骨架**：现状认知 → 判断驱动因素 → 路线选择 + 理由 → 不确定性承认。
+**易错**：不要把发布演示称为普遍 SOTA，也不要给无人数据飞轮或世界模型落地写确定年份；预印本结论只能在其任务、接口和预算下比较。
 
-**推荐路线（主线预判）**：**Teleop IL → RL 精调 → 自主数据飞轮**
-- 2025（已发生/回顾）：大规模 teleop + Diffusion Policy / Flow Matching，桌面操作在受控场景达较高 SR，部分公司开始小批量量产
-- 2026（预判）：RL 在 IL 基础上精调（RECAP/RLHF 思路），处理长尾和扰动鲁棒性
-- 2027-2028（预判）：自主数据采集形成真飞轮；世界模型辅助规划或合成数据大规模落地
-
-**看好原因**：① 数据瓶颈是主矛盾，每一步都在扩大数据；② RL 精调无需重新设计架构，直接在 IL 上叠加；③ 硬件成熟度（Jetson Orin、ALOHA-style 双臂成本下降）确保工程可行。
-
-**不确定因素**：端侧算力是否能支撑 7B 实时推理（目前 8-12 Hz 勉强够，3B 模型是突破口）；大型 sim-to-real 是否在操作任务上突破（若突破，数据需求可大幅降低）。
-
-**加分点**：提及 π0.7 / GR00T-N1 / Figure Helix 作为 2025-2026 SOTA 典型案例（快慢双系统 + 大规模 teleop 数据）；提及最可能颠覆当前路线的风险（大规模合成数据 + 仿真精度突破）。
+**核验**：[RECAP 原论文](https://arxiv.org/abs/2511.14759)、[PyRUA-Lean 原论文](https://arxiv.org/abs/2610.01939)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q38">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q38</b> · 你认为具身智能当前最难突破的工程瓶颈是什么？怎么理解？</summary>
 
-**答**：
+**答**：围绕具体系统选瓶颈，给出测量：数据覆盖看保留场景与失败簇；实时性看观测年龄和延迟分位数；长程可靠性看完成率、恢复率、人工介入与失败步骤。再设计单因素改进或消融，报告成本和剩余限制。数据、模型、控制、硬件和系统集成都可能成为主要约束。
 
-**答题骨架**：选定 1-2 个具体瓶颈，给出量化支撑，说明为什么难，提可能的出路。
+**易错**：不能用未经测量的演示数量、采集工时或“当前最好系统成功率”充当行业事实；算力和带宽也可能是真实瓶颈，不能先验排除。
 
-**高质量答案示例**：
-
-**瓶颈 1：数据效率（最根本）**——当前 1000 demos 只能覆盖约 10-20 个任务变体，人形全身通用所需估计 > 100K demos × 1000 任务；每 demo 耗时约 30 分钟人工（含 reset），全人形通用 = 数亿人时，不可能纯靠人工 scale。**出路**：自主采集 + 合成数据 + 仿真精度突破（三个并行）。
-
-**瓶颈 2：长程任务的鲁棒性**——当前最好系统在"取水杯→拧盖→倒水→放回"等 5 步以上任务成功率 < 50%（误差复利）；VLA 的 chunk-based open-loop 控制在中途遇到扰动后恢复能力差。**出路**：闭环规划 + 失败检测与恢复策略（类 DAgger 在线 query）。
-
-**加分点**：不要只说"数据少"（太泛），要给量化数字和具体出路；面试官看的是技术判断力，不是抱怨清单。
-
-**易错**：不要说"算力不够"——算力以 GPU 价格曲线下降，不是真正瓶颈；数据效率和任务鲁棒性才是当前没有明确解法的瓶颈。
+**核验**：[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)、[OpenVLA-OFT 项目](https://openvla-oft.github.io/)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q39">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×3</span> <b>Q39</b> · 如何向非 AI 背景的机械 / 电气 / 产品同学解释 VLA 的局限性？跨部门沟通的要点是什么？</summary>
 
-**答**：
+**答**：按协作者关心的指标解释：机械侧谈可达空间、负载、接触和实测精度；电气/控制侧明确指令类型、单位、时间戳、超时与停止语义；产品侧给出已验证任务、环境、失败模式及人工介入条件。用成功和失败样例、接口文档及同一验收集建立共同预期。
 
-**答题骨架**：用对方语言翻译技术局限 → 建立共同期望 → 给出可行协作方案。
+**易错**：VLA 没有通用的毫米精度、100ms 延迟或成功率；数字必须附具体本体、任务、版本与测试条件。“可继续采数据训练”也不等于上线后会自动学会。
 
-**向机械同学的翻译**：VLA 就是"大脑"，它告诉手臂"在哪夹、怎么夹"，但它不像 CNC 那样毫米级精确——它更像人在第一次做某件事，能完成大概动作，但精度 ± 3-5 mm；精密插孔（< 0.5 mm）要靠你们设计容差或导向结构来辅助。
-
-**向电气同学的翻译**：VLA 推理时间约 100 ms，不能直接控 1 kHz 电机——我们需要两层：VLA 出"路径点"，下面还要有你们的实时运动控制器（FPGA/DSP）按 1 kHz 执行插值。
-
-**向产品同学的翻译**：VLA 对"常见任务"很强，但遇到没训练过的场景（如一个奇怪颜色的新杯子）会失败；上线前要界定使用边界，超出边界要有降级方案（不是弹弹窗，是机器人安全停止）。
-
-**跨部门协作要点**：① 用演示不用 PPT（直接展示 demo 视频）；② 说明什么时候会失败（不要只展示成功的）；③ 给出明确的接口规范（VLA 输出什么格式，频率多少）。
-
-**易错**：不要用"AI 会自己学"这类说法——产品会误解为无限能力；要说"在这些条件下 85% 成功，超出条件需要人工确认"。
+**核验**：[Helix 02 官方说明](https://www.figure.ai/news/helix-02)、[ROS 2 实时系统设计](https://design.ros2.org/articles/realtime_background.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
 ---
 
+## §7 本次公开面经增补：Agent / Harness / 平台（12 题）
+
+> 以下是具身企业前端、全栈、平台或数据岗位的单源原帖实录；不代表机器人策略算法岗高频。原帖创建/编辑年份已用公开结构化字段核实；面试年份原文未明示。
+
+<details class="qa" id="q40">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q40</b> · Agent 的 Harness 应承担哪些职责，怎样与模型分工？</summary>
+
+**答**：模型负责给出候选决策；Harness 管理工具发现与调用、上下文、任务状态、执行循环、权限与预算，并记录可复查的运行轨迹。按可测试接口拆开，模型或工具替换时仍能定位失败。若连接机器人，还要把状态观测、动作执行和任务完成验证接入闭环。
+
+**易错**：Harness 没有唯一固定分层；不能把换一段提示词等同于已经实现可靠的执行系统。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0bf23431c64b495ea22deefc575c1034?sourceSSR=dynamic)；具身企业前端／平台岗，非机器人策略算法岗；原帖创建 2026-09-03（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)、[LangGraph 工作流与 Agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents)。
+
+</details>
+
+<details class="qa" id="q41">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q41</b> · 怎样定义工具输入、返回结果和失败信息，便于 Agent 正确使用？</summary>
+
+**答**：输入用明确的类型、单位、必填项和约束，并在运行时验证；返回区分业务结果、执行状态和结构化错误，附请求标识与必要证据。说明超时、取消、重复调用和重试语义；工具描述告诉模型何时适用，运行时负责实际检查。
+
+**易错**：JSON 合法或工具调用成功不等于业务目标完成；运动指令已接收也不证明物体已经抓稳。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0bf23431c64b495ea22deefc575c1034?sourceSSR=dynamic)；具身企业前端／平台岗，非机器人策略算法岗；原帖创建 2026-09-03（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[MCP 工具规范](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)、[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)。
+
+</details>
+
+<details class="qa" id="q42">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q42</b> · 短期上下文与长期记忆各存什么，怎样控制增长和错误传播？</summary>
+
+**答**：短期状态保存当前目标、已执行步骤、最近观测与待解决问题；长期记忆保存跨任务可复用且有来源的信息。用结构化摘要、按需检索和过期策略限制上下文，保留来源、时间与版本。写入前验证，发现冲突时重新观测或查询，而非把旧摘要直接当事实。
+
+**易错**：长期记忆不必全放向量库；模型猜测、工具错误和已经过期的机器人位置不应自动升级为可信记忆。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0bf23431c64b495ea22deefc575c1034?sourceSSR=dynamic)；具身企业前端／平台岗，非机器人策略算法岗；原帖创建 2026-09-03（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[LangGraph 记忆说明](https://docs.langchain.com/oss/python/concepts/memory)。
+
+</details>
+
+<details class="qa" id="q43">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q43</b> · ReAct 和先规划再执行的 Agent，应该怎样选择与组合？</summary>
+
+**答**：ReAct 根据当前信息选择动作，再用观测决定下一步，适合执行中不断获得新信息；先规划再执行先形成子任务及依赖，再交给执行器，便于跟踪长任务。实际可先规划、逐步执行，在前置条件不成立或结果偏离时局部修订计划。
+
+**易错**：先规划不意味着计划必须一路不变；观测也不能只读模型自己的文字总结，应保留工具和环境反馈。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0bf23431c64b495ea22deefc575c1034?sourceSSR=dynamic)；具身企业前端／平台岗，非机器人策略算法岗；原帖创建 2026-09-03（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[LangGraph 工作流与 Agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents)、[ReAct 原论文](https://arxiv.org/abs/2210.03629)。
+
+</details>
+
+<details class="qa" id="q44">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q44</b> · 怎样让 Agent 的调用—观测循环及时结束，避免卡死和反复调用？</summary>
+
+**答**：每轮记录目标、调用及结果，由明确的完成条件决定成功退出；另设步数、时间、token 和重试预算。对重复动作、状态无进展、连续失败及观测缺失做检测，触发恢复、降级或失败退出。日志要能区分模型决策问题与工具一直未完成。
+
+**易错**：“模型说完成”不是充分验收；预算耗尽应报告未完成，不能当成任务成功。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0bf23431c64b495ea22deefc575c1034?sourceSSR=dynamic)；具身企业前端／平台岗，非机器人策略算法岗；原帖创建 2026-09-03（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)、[LangGraph 工作流与 Agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents)。
+
+</details>
+
+<details class="qa" id="q45">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q45</b> · 什么情况下需要 Agent，什么时候把查询流程沉淀成脚本或工具？</summary>
+
+**答**：先判断输入和执行路径是否稳定。可枚举、可验证的固定流程优先编码为工具或工作流；需要结合新上下文选择工具、调整步骤时再引入 Agent。把反复成功的查询封装成有契约的可测试工具，保留参数化和失败处理，让 Agent 负责选择与组合。
+
+**易错**：沉淀工具不是照搬一次聊天记录；应剥离临时状态、硬编码凭据和偶然成功的假设，并用回归用例验证。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/aa9d624ef29445b6b62ae2aa25695b2f?sourceSSR=dynamic)；具身企业全栈／平台岗，非机器人策略算法岗；原帖创建 2026-08-13，编辑/展示 2026-08-28（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[LangGraph 工作流与 Agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents)。
+
+</details>
+
+<details class="qa" id="q46">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q46</b> · 高层已经生成 plan，落到机器人关节动作还需要哪些接口与反馈？</summary>
+
+**答**：先把目标绑定到可观测对象和状态，检查技能前置条件；技能或策略生成末端目标、关节目标或轨迹，按输出类型接入适配器、必要的运动规划／IK 与控制器执行。回传执行进度、异常和新观测，并独立检查目标是否达成，失败时重新规划或恢复。
+
+**易错**：任务规划的“抓杯子”、末端目标和电机命令是不同抽象层；具体系统可合并部分环节，但接口、坐标系与完成语义必须明确。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/aa9d624ef29445b6b62ae2aa25695b2f?sourceSSR=dynamic)；具身企业全栈／平台岗；问题明确涉及机器人执行；原帖创建 2026-08-13，编辑/展示 2026-08-28（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)、[PyRUA-Lean 原论文](https://arxiv.org/abs/2610.01939)。
+
+</details>
+
+<details class="qa" id="q47">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q47</b> · Agent 项目如何报告功能测试成功率，避免只展示成功样例？</summary>
+
+**答**：先定义一个完整任务何时成功，固定测试集、工具环境、模型／提示词版本和调用预算，按任务统计成功、失败和超时。除成功率外记录完成时间、调用成本及失败类别；重复随机运行时说明次数和聚合方式，保留失败轨迹。迭代与最终验收使用分开的样本。
+
+**易错**：工具返回率、单步正确率和端到端任务成功率不同；不能让同一个模型的自评代替可验证结果，也不能挑最好一次代表全部。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/90412c695d64469699c0e1d05f7fd153)；具身企业数据引擎岗；原问为数据分析 Agent 项目；原帖创建 2026-09-04，编辑/展示 2026-09-09（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Thea 机器人 Harness 报告](https://eit-hai.github.io/thea/index.html)。
+
+</details>
+
+<details class="qa" id="q48">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q48</b> · MCP 与 Skill 解决的问题有什么不同，能怎样一起使用？</summary>
+
+**答**：MCP 规范客户端与服务端发现和调用工具等能力的交互；Skill 通常把任务说明、流程和可复用资源组织成可加载的能力包。Skill 可以指导何时调用 MCP 暴露的工具，工具执行仍经过宿主运行时。比较时先约定这里的 Skill 指哪种实现。
+
+**易错**：注册了工具不等于模型一定会正确选择；Skill 文本也不自动赋予权限或保证步骤执行顺序。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0710cc2eecc9444299dc38be78de3f76)；具身企业平台开发岗；与千寻全栈二面同一求职流程；原帖创建 2026-08-08，编辑/展示 2026-08-26（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[MCP 工具规范](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)、[Agent Skills 规范](https://agentskills.io/specification)。
+
+</details>
+
+<details class="qa" id="q49">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q49</b> · Skill 只写在文本里，怎样判断并约束 Agent 是否遵循流程？</summary>
+
+**答**：将必须满足的条件落实为运行时校验、状态机或工作流门控，文本负责解释目的和可选策略；每一步记录输入、调用、结果和状态转移，用正常与异常用例做回归。允许偏离的部分预先界定，例如工具等价替换；关键前置条件与验收要求不能仅靠模型自觉。
+
+**易错**：提示词遵循率不是执行保证；把所有偏离都视为错误也会损失灵活性，需区分硬约束和可调整步骤。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0710cc2eecc9444299dc38be78de3f76)；具身企业平台开发岗；与千寻全栈二面同一求职流程；原帖创建 2026-08-08，编辑/展示 2026-08-26（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Agent Skills 规范](https://agentskills.io/specification)、[LangGraph 工作流与 Agent](https://docs.langchain.com/oss/python/langgraph/workflows-agents)。
+
+</details>
+
+<details class="qa" id="q50">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q50</b> · 多 Agent 之间怎样交接上下文，减少信息丢失和状态冲突？</summary>
+
+**答**：把任务标识、目标、已确认事实、待办、工具结果引用和版本组成显式交接状态；必要上下文随任务传递，大文件与长轨迹按引用读取。区分共享状态与各 Agent 的局部上下文，对并行更新规定所有权或合并规则，交接后检查关键信息是否齐全。
+
+**易错**：共享同一个长聊天记录不等于状态一致；摘要可能漏约束，旧版本结果也不能直接覆盖较新的执行事实。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/1d05dbe48b314a81804c2ffdd51ab569)；具身企业 Agent 平台开发岗，非机器人策略算法岗；原帖创建 2026-08-05，编辑/展示 2026-08-26（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[LangGraph 记忆说明](https://docs.langchain.com/oss/python/concepts/memory)、[RegenHarness 原论文](https://arxiv.org/abs/2609.27612)。
+
+</details>
+
+<details class="qa" id="q51">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q51</b> · Agent 工具失败时怎样维护状态、分类错误并决定是否重试？</summary>
+
+**答**：先记录实际已发生的操作及当前状态。连接超时等暂态故障可在预算内退避重试；参数或权限错误应先修正条件；副作用是否发生不明时先查询确认。写操作采用请求标识和去重机制，不能保证幂等的动作需要恢复策略，失败记录要进入追踪与回归。
+
+**易错**：超时不代表操作没发生；重复运动或重复写入可能产生额外副作用，不能把“全部重试三次”当通用容错。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/1d05dbe48b314a81804c2ffdd51ab569)；具身企业 Agent 平台开发岗，非机器人策略算法岗；原帖创建 2026-08-05，编辑/展示 2026-08-26（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[MCP 工具规范](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)、[RegenHarness 原论文](https://arxiv.org/abs/2609.27612)。
+
+</details>
+
+---
+
+## §8 本次公开面经增补：训练与真机现场（3 题）
+
+> 通用后训练与机器人软件岗位的具体追问；单源实录，不伪造频次。
+
+<details class="qa" id="q52">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q52</b> · DDP 在 epoch 中途恢复训练，怎样尽量延续原来的采样顺序？</summary>
+
+**答**：除模型外，保存优化器、调度器、随机数、训练步与梯度累积状态，以及各 rank 的 sampler／dataset／DataLoader 进度。分片、种子、shuffle epoch 和数据版本必须对应。可用 StatefulDataLoader 保存迭代状态，但仍需各 rank 协调；恢复后按 sampler 的补齐／丢尾规则核对样本 ID。
+
+**易错**：只保存 batch 下标或调用 set_epoch 不够；worker 预取、随机增强、world size 改动都会影响复现，不能无条件保证逐位一致，也要区分预期的补齐重复与异常重放。
+
+**题源**：[公开面经原帖](https://www.nowcoder.com/feed/main/detail/0f6cc57190264448bf1647dc36de4622)；具身企业通用大模型后训练实习岗，非 VLA 策略后训练专项；原帖创建 2026-02-10（公开 HTML 结构化记录核实）；面试年份未核，属旧帖补缺，非本季度面经证明。
+
+**核验**：[TorchData StatefulDataLoader](https://github.com/meta-pytorch/data/blob/main/torchdata/stateful_dataloader/README.md)。
+
+</details>
+
+<details class="qa" id="q53">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q53</b> · 机器人运行中一只机械臂突然不动，怎样逐层定位？</summary>
+
+**答**：先确认现场安全并保存故障时刻日志；从急停、安全状态、电源和驱动报警查起，再查总线链路、设备状态与周期数据。沿命令生成、发送、驱动接收、实际反馈逐层比对，检查是否限位、超时或保护触发。用同一时间线关联其他关节和传感器，定位第一处异常。
+
+**易错**：“模型还在输出”不证明命令已到驱动；盲目重启会丢失现场，也可能使尚未结束的命令重新生效。
+
+**题源**：[公开面经原帖](https://ac.nowcoder.com/discuss/1710893?type=0)；机器人软件工程岗；原帖为真机现场排查；原帖创建 2026-10-14（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[Beckhoff 诊断说明（TwinCAT 示例）](https://infosys.beckhoff.com/content/1033/tcsystemmanager/1089009035.html)、[ROS 2 实时系统设计](https://design.ros2.org/articles/realtime_background.html)。
+
+</details>
+
+<details class="qa" id="q54">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q54</b> · 相机偶发丢帧或没有图像，怎样区分采集、通信和处理故障？</summary>
+
+**答**：沿相机采集、驱动缓冲、编码传输、订阅回调到推理消费逐段测帧号、时间戳、频率与队列积压。先看原始流是否存在，再核对带宽、CPU/GPU 负载、复制和解码开销，以及 ROS 2 QoS 是否兼容。区分采集时间与到达时间，回放复现并关联控制异常。
+
+**易错**：增大缓存可能只把丢帧变成更大延迟；收到旧图不等于拥有当前观测，重传可靠性也不等于实时性。
+
+**题源**：[公开面经原帖](https://ac.nowcoder.com/discuss/1710893?type=0)；机器人软件工程岗；原帖为相机链路与同步排查；原帖创建 2026-10-14（公开 HTML 结构化记录核实）；面试年份未核。
+
+**核验**：[ROS 2 QoS 设计](https://design.ros2.org/articles/qos.html)。
+
+</details>
+
+---
+
+## 前沿题迁移入口
+
+Jev、Astra、具身 Harness 与 RSI 的学习题已独立为[卷九 · 🔥 近期热门方向与前沿题目](09_frontier.html)。
+
+<span id="f01"></span>
+
+[F01 → 卷九对应题目](09_frontier.html#f01)
+
+<span id="f02"></span>
+
+[F02 → 卷九对应题目](09_frontier.html#f02)
+
+<span id="f03"></span>
+
+[F03 → 卷九对应题目](09_frontier.html#f03)
+
+<span id="f04"></span>
+
+[F04 → 卷九对应题目](09_frontier.html#f04)
+
+<span id="f05"></span>
+
+[F05 → 卷九对应题目](09_frontier.html#f05)
+
+<span id="f06"></span>
+
+[F06 → 卷九对应题目](09_frontier.html#f06)
+
+<span id="f07"></span>
+
+[F07 → 卷九对应题目](09_frontier.html#f07)
+
+<span id="f08"></span>
+
+[F08 → 卷九对应题目](09_frontier.html#f08)
+
+---
+
 ## 低频备选（频次 1-2，未入主表）
 
-> 以下题目出现频次低（1-2 次），供参考，未纳入主表题号。
+> 以下为旧版低频备选，未纳入主表题号；原始次数与题源本轮未重核。
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N1</b> · ONNX 模型导出常见坑：动态 shape / 自定义 op / 控制流？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · ONNX 模型导出常见坑：动态 shape / 自定义 op / 控制流？</summary>
 
 **答**：**常见坑**：① **动态 shape**：PyTorch 默认导出固定 shape，VLA 输入 token 数变化 → 加 `dynamic_axes` 参数或 `torch.onnx.export` 时指定动态轴；② **自定义 CUDA op**（如 Flash Attention）：ONNX 不认识自定义算子 → 需注册为 custom op 或替换为 ONNX 原生 attention；③ **Python 控制流**（if/for）：`torch.jit.script` 要求显式类型，动态分支需改写；④ **int64 索引**：部分 ONNX runtime 不支持 int64 → 转 int32。
 
@@ -766,7 +900,7 @@
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N2</b> · 机器人 CI/CD：如何为策略代码建立自动化测试与发布流程？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · 机器人 CI/CD：如何为策略代码建立自动化测试与发布流程？</summary>
 
 **答**：**核心挑战**：策略测试需要物理环境，单测无法覆盖真机行为。
 
@@ -779,7 +913,7 @@
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N3</b> · 开源贡献与 PR 流程：在具身智能开源项目中如何快速做出有价值的贡献？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 开源贡献与 PR 流程：在具身智能开源项目中如何快速做出有价值的贡献？</summary>
 
 **答**：**快速贡献路径**：① **文档/示例**：门槛最低，阅读文档发现 gap → 补充 example notebook / README；② **Bug fix**：跑通 quickstart 发现复现问题 → 提 issue + 附 MRE（Minimum Reproducible Example）→ PR；③ **算法改进**：阅读 issue tracker 找 "help wanted" 标签 → 先 issue 讨论方案，被接受后开 PR（避免无效劳动）。
 

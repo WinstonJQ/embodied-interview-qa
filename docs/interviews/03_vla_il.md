@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第三卷**
 > 题源：牛客 / 知乎 / 小红书（教授级 AMA）/ CSDN / GitHub 公开面经
-> 同义题合并后 **68 题**（频次 ≥3 主表 + N1/N2/N4 三题因来源是顶级 lab 教授集中 AMA 破例入选 + 近期面经补充 10 题）
+> **题目统计**：普通问答 68 · 手撕 9 · N 备选 0 · 合计 **77** 个条目。
 
-**难度分布**：L1（必会） **23** · L2（进阶） **36** · L3（顶级 lab） **9**
+**难度分布（全卷，含手撕与 N 备选）**：L1 **24** · L2 **43** · L3 **10**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议先按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -14,16 +16,14 @@
 
 > IL 是 VLA 的入口；先把 BC / DAgger / 协变量偏移搞清楚，后面看 ACT / Diffusion Policy 才能融会贯通。
 
-<details class="qa">
+<details class="qa" id="q01">
 <summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×12</span> <b>Q01</b> · Behavior Cloning（BC）是什么？为什么会有 covariate shift？怎么缓解？</summary>
 
-**答**：BC 把专家轨迹 $(s, a^*)$ 当监督学习样本，学 $\pi_\theta(a \mid s)$ 最小化 $\|a - a^*\|^2$（连续动作）或交叉熵（离散）。
+**答**：BC 用专家示教做监督学习，拟合给定观测下的动作。部署时策略偏离专家轨迹，会访问训练覆盖不足的状态，误差可能继续放大，这就是策略诱导的分布偏移。可用 DAgger 查询策略访问态的专家动作，补充恢复与失败数据，提高场景覆盖，并结合反馈重规划。动作块有助于时间一致性，但不是解决分布偏移的保证。
 
-**Covariate shift**（协变量偏移）：策略一旦小偏离专家分布，落入未见状态 → 误差累积 → 长程任务复利崩塌，T 步误差按 $O(\epsilon T^2)$ 增长。
+**易错**：单步监督误差小不保证长程成功；DAgger 的效果依赖专家查询和学习条件，不能简单说它“几乎消除”所有偏移。
 
-**缓解**：① **DAgger** — 迭代收集策略访问态 + 专家标注，几乎消除 shift；② 数据扩增（轨迹噪声/镜像/回放）；③ **Action Chunking** — 一次预测 K 步，把"复利"压成 $T/K$ 次；④ Diffusion Policy 多模态分布建模；⑤ 加 RL 微调（IL + RL）。
-
-**易错**：BC 不是"数据多就行"——数据多但仍偏专家分布，shift 不会自动消失；需要让策略实际访问的状态分布也在数据里。
+**核验**：[DAgger 原论文](https://proceedings.mlr.press/v15/ross11a.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -55,16 +55,14 @@
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q04">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q04</b> · Mobile ALOHA 怎么解决"移动 + 双臂"协同？它和静态 ALOHA 的数据怎么联合训练？</summary>
 
-**答**：**Mobile ALOHA** = 静态 ALOHA（2×7 DoF 双臂）+ **2 维移动底盘**（线速度 v、角速度 ω）= **16 维动作 / 步**。
+**答**：Mobile ALOHA 在双臂系统上加入移动底盘和全身遥操作接口，同步记录移动与操作示教；策略可联合预测手臂、夹爪和底盘动作。训练时将移动任务数据与静态 ALOHA 数据混合，利用后者的操作经验提高数据效率。原论文以每任务 50 条移动示教评估，收益随任务与方法变化。
 
-**协同关键**：① 同步遥操（teleop master arms 控双臂 + 操作员脚踩 base）；② **Co-training**：把静态 ALOHA 1000+ demos（精细操作）与 Mobile 50 demos（移动操作）**混合训练**，让模型继承静态数据的精细操作能力；③ ACT 架构无需改动，把 base 动作当额外 2 维直接喂进去。
+**易错**：不能把论文不同任务汇总成统一“30% 提升到 90%”；动作维数须先说明是关节加夹爪还是仅机械自由度。
 
-**结果**：Mobile-only 训练成功率 ~30%；静态 + Mobile co-train ~90%（50 demos 即可完成"擦桌子 / 关门 / 烹饪"等长程任务）。
-
-**易错**：Mobile ALOHA 是 **16 维**，不是 14（容易漏算 base 的 v/ω）；50 demos 不少，但相比传统 IL 已经极少。
+**核验**：[Mobile ALOHA 作者页](https://mobile-aloha.github.io/)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -156,33 +154,25 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q10">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×9</span> <b>Q10</b> · RT-2 是怎么把动作编码成 token 的？为什么这种"动作即文本 token"方案有效但效率不高？</summary>
 
-**答**：**方案**：动作向量 **7 维 = [Δx, Δy, Δz, Δroll, Δpitch, Δyaw, gripper]**，每维正态化到 $[-1, 1]$，再离散化为 **256 个 bin**；取 LLM 词表里**最不常用的 256 个 token** 复用为"动作 token"。一步动作 = **7 个 token**，与文本 token 同混训。
+**答**：RT-2 将动作表示为八个离散字段：结束标志、末端三维平移、三维旋转和夹爪；连续量按范围量化为 256 档，再以模型可输出的 token 序列表示，与视觉语言任务联合微调。好处是复用 VLM 的语义知识与序列建模能力；代价是逐 token 生成带来的延迟，以及动作量化误差。具体 token 映射随 VLM 实现而异。
 
-**有效**：① 复用 LLM 的 token embedding + 自回归解码，直接利用 web 知识；② co-finetune 文本 + 机器人数据，VLM 的常识能迁移；③ scale up 自然。
+**易错**：RT-2 的八字段含结束标志；不要与 OpenVLA 常见的七维动作及词表映射混为一谈，也不能由 256 档推出某类插针任务必然失败。
 
-**低效**：① **7 token 串行 AR 解码**，单步推理 = 7 forward；chunk K 步则 $7K$ forward；OpenVLA 6 Hz 慢的根源。② 动作复用 LLM token 不是"自然"的——精度不足、跨任务泛化弱。
-
-**改进**：① OpenVLA-OFT 用**并行解码** + 连续动作头；② π0-FAST 用 DCT + BPE 把 chunk 压成更少 token。
-
-**易错**：256 bin 不是"够细"，是 VLM 复用的权衡；高精度任务（< 0.1 mm 插针）必失效。
+**核验**：[RT-2 原论文](https://arxiv.org/html/2307.15818)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×8</span> <b>Q11</b> · π0 / π0.5 / π0.6 三个版本的核心差异？KI（Knowledge Insulation）解决了什么？</summary>
+<details class="qa" id="q11">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×8</span> <b>Q11</b> · π0、π0.5、π0.6／π*0.6 的差异是什么？KI 与 RECAP 怎样区分？</summary>
 
-**答**：
-- **π0**（2024-10）：PaliGemma 3B（VLM）+ **Action Expert 300M**（独立 Flow Matching 动作头）+ 50 Hz 控制 + chunk **H = 50**。
-- **π0.5**（2025）：核心是**开放世界泛化 + 多源 co-training**，让 π0 框架在更多任务/场景/embodiment 上稳定迁移；**KI（Knowledge Insulation）是 π0.5 框架的后续扩展**，隔离 VLM 与 Action Expert 梯度防止动作训练污染语言/视觉能力。
-- **π0.6 / π*0.6**（2025-11）：核心创新 **RECAP**——把示教数据当 offline RL 用，advantage-conditioned 采样，强化"好动作 token"权重。
-- **π0.7**（2026-04）：最新发布。
+**答**：π0 结合预训练 VLM 与 flow 动作专家；π0.5 侧重多源联合训练和开放场景泛化。π0.6 是后续基座，π*0.6 使用 RECAP，从示教、自主执行和人工纠正数据中做优势条件策略学习。KI 是控制连续动作专家梯度对 VLM 影响的训练方法，不等于完全冻结主干。π0.7 的官方发布日期是 2026-04-16，强调多样条件与组合泛化。
 
-**KI 解决什么**：早期版本动作微调梯度反传会**破坏 VLM 的语言/视觉理解**（灾难性遗忘）；KI 用 stop-gradient + 双路梯度让两个模块各学各的。
+**易错**：不能把 π0.6 基座与 π*0.6／RECAP 等同，也不能把优势条件化简写成“高质量 token 加权”；版本能力须按各自原文与实验设置说明。
 
-**易错**：RECAP 属于 **π0.6**，不是 π0.5；π0.5 主体是"开放世界泛化"，KI 是配套扩展工作；π0.7 是 **2026-04** 发布。
+**核验**：[KI 原论文](https://arxiv.org/abs/2505.23705)、[RECAP 原论文](https://arxiv.org/abs/2511.14759)、[π0.7 官方说明](https://www.pi.website/blog/pi07)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -205,38 +195,25 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q13</b> · FAST tokenizer 是怎么做的？为什么 DCT + BPE 组合比传统离散化高效 10×？</summary>
+<details class="qa" id="q13">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×6</span> <b>Q13</b> · FAST tokenizer 怎么结合 DCT 与 BPE？动作压缩率和推理加速是一回事吗？</summary>
 
-**答**：**FAST = DCT → scale → round → flatten → BPE**，五步缺一不可。
+**答**：先归一化动作块，对各动作维的时间序列做 DCT，缩放并量化系数，按频率顺序展开，再用针对动作系数训练的 BPE 压缩重复模式。它利用动作的时间相关性，使自回归模型用较少 token 表达整段动作。作者报告典型每块 30–60 token；压缩率、失真和速度取决于数据、块长及实现。
 
-1. **DCT**（Discrete Cosine Transform）：把 H 步 × D 维动作 chunk 转频域，主要能量集中低频。
-2. **Scale**：把 DCT 系数缩放到合适整数范围（e.g. ±100）。
-3. **Round**：离散化为整数。
-4. **Flatten**：二维 (H × D) → 一维序列。
-5. **BPE**：用预训练 BPE tokenizer 把常见短模式压成单 token。
+**易错**：论文的最高约 5 倍是训练加速；不能写成固定 5–10 倍推理加速，作者明确指出 π0-FAST 的 AR 推理比原 π0 的 flow 解码慢。
 
-**高效 10× 原因**：① DCT 集中能量，**高频系数大多 ≈ 0**，round 后变长串 0；② BPE 把这些重复模式压成 1-2 token；③ chunk 越长压缩比越高（H=50 时尤甚）。
-
-**效果**：π0-FAST 在同样 chunk 下，token 数从 ~400 降到 ~40，推理速度 5-10× 提升。
-
-**易错**：FAST 不是 "DCT 单独用"，BPE 是关键；少一步压缩比就不够。
+**核验**：[FAST 作者说明](https://www.pi.website/research/fast)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q14</b> · OpenVLA 的动作是怎么离散化的（每维 256 个 bin）？这种方案在多大动作精度任务上会失效？</summary>
+<details class="qa" id="q14">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q14</b> · OpenVLA 如何把动作离散化为 256 个 bin？量化和动作解码有哪些局限？</summary>
 
-**答**：**离散化方案**：取每维动作（7 维（6-DoF 末端位姿 + 1 维 gripper））在训练集的 1%-99% 分位数区间，等分成 **256 个 bin**；超界截断。每个 bin 复用 LLM 词表里最不常用的 256 个 token。
+**答**：OpenVLA 将七维动作各自按训练数据的分位数范围归一化，再划分为 256 档，映射到动作 token，使用条件自回归分布训练。局限包括量化分辨率、超范围截断，以及连续动作块需要较多串行 token。量化误差须结合动作量程、控制接口和闭环容差评估；可比较连续动作头或压缩动作块。
 
-**失效场景**：
-1. **高精度任务**（< 0.1 mm 插针、拧螺丝）：256 bin 在 ±10 cm 量程下分辨率 ≈ 0.8 mm，精度不够。
-2. **极端动作**：超 99% 分位被截断，剧烈动作不能表达。
-3. **多模态动作**：256 bin 是单峰离散分布，难以表达"两条专家路径"这种多模态结构。
+**易错**：categorical 分布可以有多个高概率峰；不能说“256 档就是单峰”。离散精度不足、解码选取和多模态建模是不同问题。
 
-**改进**：① **OpenVLA-OFT** 换成**连续动作头 + L1 回归**；② π0 用 **Flow Matching** 连续动作建模；③ FAST tokenizer 提高压缩比同时保精度。
-
-**易错**：256 bin 不是 OpenVLA 独创，RT-2 也是；这是 VLM 复用方案的固有局限。
+**核验**：[OpenVLA 原论文](https://arxiv.org/html/2406.09246)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -254,36 +231,25 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q16">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q16</b> · π0 用的是哪个 VLM backbone？为什么选 PaliGemma 而不是 Llama？</summary>
 
-**答**：**π0 backbone = PaliGemma**（SigLIP-400M 视觉编码器 + **Gemma-2B** 语言模型）。
+**答**：原始 π0 以 PaliGemma 的预训练视觉语言主干为基础，连接较小的 flow-matching 动作专家。PaliGemma 本身由 SigLIP 视觉编码器和 Gemma 语言模型组成，能提供已有视觉语义能力，并兼顾计算成本。这是论文的架构选择，不能据此断言所有 Llama 系模型都不适合机器人。
 
-**选择原因**：
-1. **已对齐的 VLM**：PaliGemma 是 Google 联合预训练好的 vision-language 模型，比 "Llama + 外挂 ViT" 拼接更稳。
-2. **Gemma-2B 够小**：50 Hz 高频推理（20 ms / step）要求 backbone 轻量；Llama-2 7B 在消费级 GPU 上跑不到 50 Hz。
-3. **Apache 2.0 协议**：商用友好，机器人公司容易落地。
-4. **Multimodal projector 现成**：图像 → 文本 token 的投影层已训练好。
+**易错**：PaliGemma 权重采用 Gemma 条款，不能写成 Apache 2.0；动作按 50 Hz 执行也不代表 VLM 每 20 ms 完整推理一次。
 
-**不用 Llama**：① text-only，需要再接视觉；② 7B 太重；③ Meta 协议有限制。
-
-**易错**：**PaliGemma ≠ Gemma**——PaliGemma 含 SigLIP 视觉；说成 "π0 用 Llama" 是常见错（OpenVLA 才用 Llama-2 7B）。
+**核验**：[π0 原论文](https://arxiv.org/abs/2410.24164)、[Google PaliGemma 模型说明](https://google-research.github.io/big_vision/big_vision/configs/proj/paligemma/)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q17">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q17</b> · π0 里 Action Expert 的 300M 参数为什么单独拆出来？和 backbone 怎么交互？</summary>
 
-**答**：**π0 结构**：PaliGemma 3B（VLM，frozen 或 LoRA） + **Action Expert 300M**（独立 Flow Matching 网络）。
+**答**：原始 π0 给动作 token 配置较小的专用 Transformer 权重，用 flow matching 学习连续动作块；视觉语言与动作部分通过注意力交互。推理先编码观测条件，再迭代更新带噪动作。分离参数有助于平衡预训练知识与动作生成的计算需求，但不意味着两个独立模型各训各的。
 
-**拆出原因**：
-1. **负载分层**：每次重算 chunk，VLM forward 一次产条件特征；Action Expert 走约 10 步 flow ODE。重算频率由 execution horizon / async 决定（不是固定 1 Hz）。
-2. **训练目标不同**：VLM 是 AR 语义损失，Action Expert 是 Flow Matching 速度场回归；放一起训会互相干扰。
-3. **隔离梯度**（KI 思想）：动作微调不应破坏 VLM 的语言/视觉理解。
+**易错**：原始 π0 不能统一描述成“冻结主干或 LoRA”，也不应把后续 KI 的梯度隔离倒写为原架构机制；块长、动作执行频率与重规划频率须分开。
 
-**交互**：VLM 编码 → 条件特征 $c$ → Action Expert 接 $(c, \text{noisy chunk}, \tau)$ → 约 10 步 ODE 出干净 chunk。chunk H=50 在 50 Hz 下覆盖 ~1 秒。
-
-**易错**：Action Expert 是 joint training（不是独立）；H=50 = **覆盖时长**，不等于"每秒重算一次"。
+**核验**：[π0 原论文](https://arxiv.org/abs/2410.24164)、[Knowledge Insulation 原论文](https://arxiv.org/abs/2505.23705)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -410,59 +376,36 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 > 一次预测多步动作是 IL 长程任务的关键；ACT 是 ALOHA 团队的范式，π0 / OpenVLA 都借鉴。
 
-<details class="qa">
+<details class="qa" id="q24">
 <summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×10</span> <b>Q24</b> · 什么是 Action Chunking？为什么 VLA 要预测一个动作 chunk 而不是单步动作？块大小怎么选？</summary>
 
-**答**：**Action Chunking**：策略一次预测 K 步连续动作 $a_{t:t+K}$ 而非单步 $a_t$。
+**答**：策略一次预测未来一段动作，显式建模动作间的时间关系。执行时可以整块执行，也可以只执行前几步再重规划，或融合多次预测的重叠部分。块越长，通常越能摊销调用成本，但反馈反应可能变慢；实际调用频率取决于执行时域，不能只看预测块长。
 
-**执行方式**：
-- **Open-loop**：执行整个 chunk 再重新规划。
-- **Receding-horizon**：执行 1 步重规划，类似 MPC。
-- **Ensemble**：多 chunk 重叠用 EMA / 投票（ACT 用法）。
+**易错**：ACT 的 temporal ensembling 每个控制步都查询；原论文真机设置用过 k=100。不存在通用的 4–16“甜区”，也没有固定 K 倍推理加速。
 
-**好处**：
-1. **减少高频推理开销**：K 倍。
-2. **平滑动作**：相邻步内插值好，减少抖动。
-3. **显式建模时序相关性**：尤其 diffusion / flow 类策略受益。
-4. **缓解复合误差**：T 步任务的"高层决策点"从 T 降到 $T/K$，整体偏离专家分布的次数变少；但 chunk 内仍是 open-loop，不能严格消除 covariate shift。
-
-**块大小**：
-- ALOHA / 精细操作：K = 8-16（160-320 ms）。
-- π0：K = 50（50 Hz 下 1 秒，长程任务）。
-- 任务变化慢可更长；环境多变需更短。
-
-**易错**：chunk 太长牺牲反应性（环境突变前已锁死动作）；4-16 在 manipulation 上是甜区。
+**核验**：[ACT 原论文](https://arxiv.org/html/2304.13705)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q25">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×8</span> <b>Q25</b> · ACT（Action Chunking with Transformers）的结构是什么？它用 VAE / CVAE 解决了什么问题？</summary>
 
-**答**：**ACT 结构**（ALOHA 团队 2023）：Encoder-Decoder Transformer + **CVAE**。
+**答**：原始 ACT 是条件 VAE 与 Transformer 策略：训练时后验编码器从关节状态和示教动作块推断潜变量 z；策略以相机图像、当前关节状态和 z 为条件，用 k 个位置查询并行预测动作序列，以重建损失和 KL 正则训练。推理移除的是后验编码器，视觉编码仍保留，并将 z 置零。
 
-- **Encoder**：图像 + proprio + 文本指令 → 上下文特征。
-- **Decoder**：自回归 / 一次性输出 K 步动作 chunk。
-- **CVAE**：训练时额外 encoder 把 (动作 chunk, 观测) → latent $z$，KL 正则到 $\mathcal{N}(0, I)$；decoder 用 $(z, \text{观测})$ 还原 chunk。
-- **推理时不用 encoder**：直接 $z = 0$（mean）→ decoder 出 chunk。
+**易错**：原始 ACT 不默认输入文本指令，也不是自回归生成动作；z=0 是潜变量的确定性取值，不保证对应某条专家轨迹或动作分布的众数。
 
-**CVAE 解决的问题**：**多模态动作分布**。直接 MSE 回归 chunk 会把"专家 A 走左路 / 专家 B 走右路"平均成"中间路"（物理不可执行）。CVAE 让 $z$ 编码"走哪条路的意图"，推理 $z=0$ 输出**某条代表性路径**而非 mean。
-
-**易错**：ACT 推理用 $z=0$ 不是"取所有路径平均"，而是"取 prior 的 mode"，仍是某条具体路径。
+**核验**：[ACT 原论文](https://arxiv.org/html/2304.13705)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q26">
 <summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×7</span> <b>Q26</b> · 模仿学习里"复合误差"指什么？Action Chunking 是怎么缓解它的？理论解释是什么？</summary>
 
-**答**：**复合误差**（compounding error）：BC 在每步犯小错 $\epsilon$，T 步后误差累积为 $O(\epsilon T^2)$（在最坏情况下二次增长）；策略一旦偏离专家分布，错误像复利一样雪崩。
+**答**：BC 在专家状态上训练，但部署中的小误差会使策略进入未见状态，后续错误继续放大；经典最坏情形下累计代价差可随任务时域二次增长。动作块联合预测一段行为，可能缩短有效决策时域并保持时序一致性，ACT 实验中能缓解复合误差。
 
-**Action Chunking 缓解**：一次决策 K 步，等价于把 T 步轨迹划成 $T/K$ 个"决策点"，**chunk 内动作 joint 预测，不会因单步偏离累积**；只在 chunk 之间的决策点处可能累积。
+**易错**：块内开环执行仍会受扰动和模型误差影响；不能直接把理论界中的 T 换成 T/K 就宣称误差降阶，更不能保证 chunk 内不累积偏差。
 
-**直觉**：高层重规划次数从 $T$ 降到 $T/K$，复合误差量级随之缩小；但 chunk 内部仍是 open-loop，环境扰动或专家不一致仍会让单 chunk 内误差累积，因此并非"严格平方降阶"。
-
-**实证**：ACT 论文中较大 chunk 在插针等高精度任务上显著优于单步；最佳 K 与任务变化率相关，过长牺牲反应性。
-
-**易错**：chunking 不解决"OOD 状态"本身——只减少"高层决策点数量"；仍需 DAgger / 数据多样性来覆盖 OOD。
+**核验**：[ACT 原论文](https://arxiv.org/html/2304.13705)、[DAgger 原论文](https://proceedings.mlr.press/v15/ross11a.html)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -626,52 +569,25 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 > VLA 落地最大瓶颈是推理速度——50 Hz 控制频率把 6 Hz 的 OpenVLA 卡在实验室。
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×9</span> <b>Q35</b> · OpenVLA 推理速度只有约 6 Hz（4090 GPU 上），为什么这么慢？有哪些主流加速方案？</summary>
+<details class="qa" id="q35">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×9</span> <b>Q35</b> · 原始 OpenVLA 推理的瓶颈是什么？怎样评价优化后的速度和控制效果？</summary>
 
-**答**：**慢的原因**：
-1. **AR 串行解码**：每步动作 = 7 token 串行 forward（chunk K 步 = $7K$ forward）。
-2. **Llama-2 7B 单 forward** 在 4090 上 30-50 ms。
-3. **无 KV cache 复用**：多帧观测每次重算。
+**答**：先区分视觉编码、prefill、逐 token 解码、动作头与数据传输的耗时。原始 OpenVLA 的串行动作 token 生成会限制低延迟控制；OFT 通过并行解码、动作块和连续回归改变这一瓶颈。量化、编译和缓存可进一步优化，但必须在目标输入、设备和控制接口下测量成功率与延迟。
 
-**主流加速方案**：
-1. **OpenVLA-OFT**：并行解码 + 连续动作头 + L1 回归，**5-10× 提速**。
-2. **TinyVLA / SpatialVLA**：蒸馏到 1-2B；牺牲精度换速度。
-3. **量化**：INT8 / INT4，2-4× 提速，精度损失 < 5%。
-4. **推理引擎**：vLLM / TensorRT / FlashAttention-2。
-5. **KV cache 复用**：多帧观测共享 KV，减少重复计算。
-6. **Chunking + 异步**：chunk 内 open-loop 执行，下一 chunk 重叠推理。
+**易错**：“6 Hz”不是模型常数；报告硬件、精度、动作块长、推理调用频率和动作执行频率。吞吐提高不代表端到端延迟等比例下降。
 
-**易错**：OpenVLA 是 **6 Hz**（4090，未优化），不是 7 Hz——网传 7 Hz 是常见错传。
+**核验**：[OpenVLA-OFT 作者页](https://openvla-oft.github.io/)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q36">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×5</span> <b>Q36</b> · 如果模型推理只能跑 5 Hz 而机器人需要 50 Hz 控制，怎么办？说说工程方案。</summary>
 
-**答**：**4 套方案**：
+**答**：先区分策略调用频率与动作执行频率。策略可一次预测动作块，控制器按更快周期执行；执行部分动作后重新观测，平衡反应性与推理开销。异步方案让旧块执行与新块生成重叠，但需处理推理期间已执行的前缀和切块连续性。RTC 将此建模为动作补全，让新预测衔接已承诺的动作。
 
-1. **Action Chunking + open-loop**：
-   - 模型 5 Hz 输出 chunk K = 10（覆盖 0.2 秒）；
-   - 机器人按 50 Hz 顺序执行 chunk 内动作 + 插值。
-   - 简单稳，是 π0 / OpenVLA 默认做法。
+**易错**：插值或简单平均不能补回缺失反馈，也不保证切块可行；需测端到端延迟、状态陈旧度、约束与任务成功率。
 
-2. **双系统 VLA**：
-   - **System 2** 大 VLM 5 Hz 输出高层"语义子目标"；
-   - **System 1** 小 policy 50 Hz 出 low-level action。
-   - 代表：Figure Helix、GR00T N1。
-
-3. **异步流水线**：
-   - 当前 chunk 执行中，下一 chunk 已开始推理（overlap）；
-   - 推理 latency 被掩盖在执行时间里。
-
-4. **底层控制器兜底**：
-   - 模型出 desired joint pos / velocity，底层 **PID / impedance** 控制器在 50 Hz / 1 kHz 跟踪；
-   - 模型只管"目标"，控制器管"如何到达"。
-
-**实务组合**：① + ④ 最常见——chunking + 底层控制器。
-
-**易错**：不要试图"把模型做到 50 Hz"——50 Hz × 7B 模型 = 350 GFLOPS / s，4090 也吃力；架构上把高频部分剥离才对。
+**核验**：[RTC 作者说明](https://www.pi.website/research/real_time_chunking)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -901,17 +817,14 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q47</b> · RECAP（π0.6）的核心是什么？怎么把示教数据当 offline RL 用？advantage-conditioned 怎么实现？</summary>
+<details class="qa" id="q47">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q47</b> · RECAP（π*0.6）的核心是什么？示教、自主执行与人工纠正怎样结合？</summary>
 
-**答**：**RECAP** = **RL with Experience and Corrections via Advantage-conditioned Policies**（π*0.6，2025-11，arXiv:2511.14759）。
+**答**：RECAP 使用示教、自主执行与人工纠正数据，结合价值估计获得动作块的优势信号，用优势条件策略学习区分较好与较差行为；执行时选择较好优势条件生成动作。策略再收集经验与纠正，形成迭代改进。π*0.6 指经 RECAP 后训练的策略，应与 π0.6 基座区分。
 
-**核心三件事**：
-1. **异构数据**：demos + on-policy rollouts + **teleoperated corrections**。
-2. **Advantage-conditioned 训练**：估算 $A(s,a)$，把 advantage 作为 condition 喂回 policy（类似 DT 的 return-conditioned）。
-3. **推理时 condition on high advantage**：生成高质量动作。
+**易错**：不只是离线示教，也不是 reward-weighted regression 或默认 reward model 加 PPO；优势如何离散化、价值如何训练须依原文说明。
 
-**易错**：RECAP 不是 reward-weighted regression、也不是 reward-model + PPO；是**条件生成式 advantage-conditioned VLA RL**；数据上不只 offline demos，还吃 corrections 与 on-policy rollouts。
+**核验**：[RECAP 原论文](https://arxiv.org/abs/2511.14759)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -935,49 +848,30 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q49</b> · 你怎么看 VLA "走端到端"还是"分层规划 + 低层 policy"？工业界主流路线是什么？</summary>
+<details class="qa" id="q49">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q49</b> · 端到端 VLA 与高层规划加低层技能如何取舍，系统接口要说明什么？</summary>
 
-**答**：
-- **端到端 VLA**：one model 直接 obs → action（OpenVLA / π0 / RDT）；优点：简单、scale 友好；缺点：长程任务稳定性差、可解释性弱。
-- **分层规划**：High-level LLM 输出子任务（SayCan / Code-as-Policy）+ Low-level policy 执行 atomic skills；优点：可解释、模块化、可调试；缺点：层间接口设计难、容易堆栈耦合。
+**答**：先说明端到端的边界：模型可以从观测预测连续动作，也可由高层模型选择工具／技能再执行。前者减少手工接口，后者便于组合已有能力和局部恢复，但依赖状态、技能契约与结果验证。PyRUA-Lean 展示了将 VLA 等 primitives 纳入代码执行框架的具体方案；不能从个别论文推出唯一工业路线。
 
-**工业界主流**：**Hybrid**——
-1. 端到端 VLA 做 atomic skill 执行（< 30 秒任务）；
-2. LLM 做高层任务分解（如 "做早餐" → "打开冰箱 / 取鸡蛋 / 开火..."）；
-3. 双系统 VLA（Helix / GR00T N1）正是这种思路的端到端化。
+**易错**：不要把“分层”简单等同于特定频率或任务时长；大模型、动作策略与控制器分别输出什么、怎样反馈才是比较重点。
 
-**π0 自己也提分层**——虽然 π0 模型本身是端到端，但 Physical Intelligence 公开 blog 提到"未来 hierarchical + VLA"是落地必由路径。
+**核验**：[π0 原论文](https://arxiv.org/abs/2410.24164)、[PyRUA-Lean 原论文](https://arxiv.org/abs/2610.01939)。本题频次沿用历史记录，本轮只修订答案。
 
-**判断关键**：
-- 数据极丰富 + 短程任务 → 端到端；
-- 长程 + 多步推理 → 分层 / 双系统。
+</details>
 
-**易错**：不要把"端到端"和"分层"看成对立——它们正在融合（双系统 VLA）。
+<details class="qa" id="q50">
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q50</b> · 哪些情况下值得使用世界模型与规划？和直接学习动作策略有什么取舍？</summary>
+
+**答**：世界模型学习状态在动作作用下的变化，可用于预测、候选动作比较或想象轨迹训练。直接策略把计算更多集中在动作生成。选择取决于动力学可预测性、交互成本、任务时域、规划预算与模型误差；两者也能结合，例如动作条件潜在预测用于目标导向规划。需在相同数据和评测条件下比较。
+
+**易错**：潜在状态并不天然可解释；世界模型也可能累积误差，不能保证用固定十分之一数据解决所有任务或必然优于直接策略。
+
+**核验**：[V-JEPA 2 原论文](https://arxiv.org/abs/2506.09985)、[DreamerV3 原论文](https://arxiv.org/abs/2301.04104)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>Q50</b> · 端到端 VLA 真的能跑通吗？什么场景下你会优先选 World Model + 分层规划而不是端到端 VLA？</summary>
-
-**答**：**端到端 VLA 挑战**：数据需求海量（OXE 970K 仍不够）、closed-loop 评估难、长程任务复合误差爆炸。
-
-**World Model 路线**：学环境动力学 $\hat{P}(s' \mid s, a)$，用于规划（CEM / MPPI）或 imagination 训 policy（Dreamer / TD-MPC2）。
-
-**优先 WM + 分层场景**：
-1. **真机 sample 极贵**——WM 用 1/10-1/100 数据达到 RL 效果。
-2. **需 explicit reasoning**——latent 空间可做反事实推理。
-3. **长程规划**——规划与执行分层，避免端到端复合误差。
-4. **可解释性需求**——WM latent 可观察、可干预。
-
-**端到端 VLA 更好**：数据丰富、反应式毫秒级、多任务 co-train 通用 backbone。
-
-**易错**：WM 不是"过时路线"——工业界两条路线并行，WM 进入决策环路被广泛看好。
-
-</details>
-
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>Q51</b> · 具身智能里"操作（manipulation）"和"运动控制（locomotion）"哪个落地更难？为什么操作是"前途无量"但卡点更多？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q51</b> · 具身智能里"操作（manipulation）"和"运动控制（locomotion）"哪个落地更难？为什么操作是"前途无量"但卡点更多？</summary>
 
 **答**：
 | | Locomotion | Manipulation |
@@ -1002,29 +896,14 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>Q52</b> · 具身智能的"泛化性"为什么必须靠多模态大模型撑？纯 RL 或纯 IL 路线为什么不够？</summary>
+<details class="qa" id="q52">
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q52</b> · 多模态预训练怎样帮助具身泛化？它与 IL、RL、世界模型分别解决什么问题？</summary>
 
-**答**：**具身泛化的四个维度**：跨任务 / 跨场景 / 跨物体 / 跨形态——传统 RL / IL 训练分布外几乎崩。
+**答**：先定义泛化维度：新物体、场景、指令、任务组合或本体。VLM 预训练能提供视觉语义先验，IL 和 RL 提供行为学习信号；二者组合是重要路线，但效果仍依赖训练覆盖和物理接口。动作条件世界模型、表征学习、规划与控制也能提高特定泛化能力，应在明确的未见分布上比较。
 
-**多模态大模型的核心价值**：
-1. **Web-scale 视觉 + 语言先验**——VLM 见过千万张图、亿级文本；新场景仍能特征匹配。
-2. **语言 grounding**——"操作螺丝刀" 这种新任务可通过语言映射到学过的"用细长工具旋转"知识上。
-3. **跨任务知识共享**——任务在自然语言空间天然相近，VLM 自动迁移。
+**易错**：不能把“多模态大模型是唯一泛化路径”当定理；VLM、IL、RL 也不是互斥类别，预训练语义能力不自动保证精确控制。
 
-**纯 RL 不够**：
-- 真机 sample 贵，无法覆盖长尾。
-- 探索效率低，复杂任务 reward 难设。
-- 跨任务零迁移。
-
-**纯 IL 不够**：
-- 演示数据有限（OXE 970K），远不能覆盖家庭长尾。
-- 分布外协变量偏移崩。
-- 跨场景泛化弱。
-
-**VLA 解法**：VLM backbone 提供"通识 + 语义对齐"，IL / RL 提供"动作生成"——两者结合是当前唯一可见的泛化路径。
-
-**易错**：VLM ≠ 替代物理推理——它补足"语义理解 + 先验"，不能直接生成精确动作；必须配合 action head。
+**核验**：[V-JEPA 2 原论文](https://arxiv.org/abs/2506.09985)、[π0 原论文](https://arxiv.org/abs/2410.24164)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -1034,19 +913,14 @@ $$\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^\infty (\gamma\lambda)^l 
 
 > 面试官会用项目题考察"系统观 + 真机经验"；答案要套用自己的项目讲，下面是标准答题框架。
 
-<details class="qa">
+<details class="qa" id="q53">
 <summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×7</span> <b>Q53</b> · 强化学习和模仿学习如何结合？在你的项目里是怎么用的？</summary>
 
-**答**：**5 种主流组合**：
-1. **IL 预训练 → RL fine-tune**：BC/DAgger 学初始 → PPO/SAC 精调；工业首选最稳。
-2. **联合 loss**：$L = \alpha L_{\text{BC}} + \beta L_{\text{RL}}$；适合 demos 少 + 有 reward。
-3. **Offline RL**：CQL / IQL / AWAC 从静态 demos 学，无需在线交互。
-4. **GAIL**：discriminator 对抗，无需 reward。
-5. **RLHF / RLAIF**：偏好 → reward model → PPO。VLA 后训练也走 RL-from-experience；其中 RECAP 是 **advantage-conditioned 变体**，不是典型 PPO。
+**答**：常见组合包括用示教学初始策略，再通过交互与奖励改进；也可联合示教损失与 RL 目标，或从含演示的离线数据学习。具体做法依赖动作分布、可计算的概率、奖励和交互预算。RECAP 是优势条件策略路线，结合自主执行与人工纠正，不等同于统一套 PPO。项目回答应交代真实做过的组合、数据、对照和失败。
 
-**项目答题模板**：BC 预训练 → 定义 reward = task + smoothness → PPO + GAE fine-tune → 关键是 **early stopping + KL 约束** 防偏离 BC 太远。
+**易错**：IL 与 RL 不是模型架构分类；不能保证混合后最稳，更不能把未做过的 BC→PPO 流程当自己的实践经历。
 
-**易错**：纯 RL 真机 sample 贵；纯 IL 长程崩；hybrid 是工业现实。
+**核验**：[RECAP 原论文](https://arxiv.org/abs/2511.14759)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 

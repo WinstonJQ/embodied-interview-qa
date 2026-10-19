@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第六卷**
 > 题源：牛客 / 知乎 / CSDN 公开面经 / OpenLoong 项目文档 / MIT-Cheetah 论文 / 各大人形项目 arXiv 论文 / 公司公开招聘 JD
-> 同义题合并后 **48 题**（主表 45 题：频次 ≥3 + 低频备选 3 题）
+> **题目统计**：普通问答 45 · 手撕 10 · N 备选 3 · 合计 **58** 个条目。
 
-**难度分布**：L1（必会） **5** · L2（进阶） **36** · L3（顶级/前沿） **4** （低频备选另计：L2 ×2 / L3 ×1）
+**难度分布（全卷，含手撕与 N 备选）**：L1 **8** · L2 **43** · L3 **7**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -183,23 +185,14 @@
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q11</b> · LQR、PID、MPC 在腿足控制里各自的定位？为什么四足主流都是 MPC？</summary>
+<details class="qa" id="q11">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q11</b> · PID、LQR、MPC 与 RL 在腿足控制中的定位和取舍是什么？</summary>
 
-**答**：
+**答**：PID 以误差反馈实现局部跟踪；LQR 在给定线性模型和二次代价下计算反馈增益；MPC 滚动优化有限时域，可显式处理接触力、摩擦与状态约束。腿足也广泛研究 RL 策略，既可输出关节目标，也可与模型控制结合。选型要看模型误差、算力、接触变化、训练覆盖及安全要求。
 
-| | PID | LQR | MPC |
-|---|---|---|---|
-| 模型 | 不需要 | 线性，需 $A$、$B$ | 线性/非线性都行 |
-| 约束 | 不支持 | 不支持 | **原生支持**（摩擦锥、力上下限） |
-| 计算 | 几乎免费 | 离线一次解 Riccati | 每周期解 QP |
-| 时域 | 单点反馈 | 无限时域 | 有限滚动时域 |
+**易错**：不能说“四足都用 MPC”或“PID 只能用于最低层”。MPC 的约束优势不代表所有问题都能在固定 1 ms 内求解，LQR 也有有限时域形式。
 
-**腿足偏爱 MPC 的原因**：① 接触约束是**硬约束**（摩擦锥、不可拉脚），LQR / PID 没法直接处理；② 步态切换时接触序列变，需要重新优化，MPC 滚动天然适合；③ 现代算力 1 ms 解 QP 可行。
-
-**简单系统例外**：质心动力学接近线性倒立摆、接触不切换的系统（如轮式平衡），LQR 一次离线解 Riccati 就够；详见低频备选 N3。
-
-**易错**：PID 在腿足里**仍然存在**——但只用在最底层关节伺服（电流环、位置环），MPC / WBC 是上层。说"腿足只用 MPC"是不准确的。
+**核验**：[MIT Convex MPC 论文](https://dspace.mit.edu/entities/publication/bc8c7e1e-5830-443f-a879-787947111fcf)、[大规模并行腿足 RL 论文](https://proceedings.mlr.press/v164/rudin22a/rudin22a.pdf)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -698,18 +691,14 @@ $$\ddot{q} = J_1^+ \ddot{x}_{1,des} + N_1 \ddot{q}_2$$
 
 </details>
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q39</b> · 端到端 VLA 接管人形的上下身控制可行吗？目前主流为什么还是分层（高层语义 + 底层 RL/MPC）？</summary>
+<details class="qa" id="q39">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q39</b> · 全身 VLA 与分层控制怎样结合？“从像素到动作”是否等于一个模型直接输出力矩？</summary>
 
-**答**：理论上 VLA 可端到端控人形关节力矩，但 2026 年**几乎没有产品这么做**——主流仍是分层。
+**答**：全身视觉运动策略已有公开系统案例，但“端到端”并不自动意味着同一个大模型每周期直接输出力矩。Figure 的 Helix 02 官方说明中，S2 处理语义，S1 生成全身关节目标，S0 在更快时标跟踪并处理全身协调。讨论方案要明确输出是目标位姿、关节目标还是执行器命令，以及闭环反馈和约束由谁负责。
 
-**端到端难点**：① **频率不匹配**：VLA 5-10 Hz vs 关节力矩 ≥ 200 Hz；② **数据稀**：OpenX / DROID 主要是机械臂，腿足全身 teleop 数据规模小；③ **稳定性兜底**：VLA 错一步可能让人形摔倒（成本几十万），机械臂错只是抓不到，容错差巨大；④ **物理可行性**：VLA 不内置浮动基座动力学，输出可能违反摩擦锥 / 关节限位。
+**易错**：不要沿用“VLA 只能管上身”或“只能做高层规划”的结论；厂商演示说明其架构与特定任务表现，不证明所有人形任务已解决。
 
-**主流分层**：VLA / LLM（1-5 Hz）出语义目标 → locomotion policy（50-200 Hz）出关节命令 → WBC + 力矩控制（1 kHz）跟踪 + 物理保护。
-
-**前沿**：GR00T-N1 / Figure Helix（快慢双系统）把 VLA 与底层 control 分离，语义层不直接接关节；ASAP / HoST 把特定技能做成可调用 RL 模块。
-
-**易错**："VLA 完全替代传统控制"是 2024-2025 媒体说法；2026 年实际仍分层——VLA 决定"做什么"，腿足底层执行"怎么做"。
+**核验**：[Figure Helix 02 官方架构](https://www.figure.ai/news/helix-02)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -836,10 +825,10 @@ $$\ddot{q} = J_1^+ \ddot{x}_{1,des} + N_1 \ddot{q}_2$$
 
 ## 低频备选（频次 1-2，未入主表）
 
-> 以下题目出现频次低（1-2 次），供参考，未纳入主表题号。
+> 以下为旧版低频备选，未纳入主表题号；原始次数与题源本轮未重核。
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N1</b> · 谐波减速器 vs 行星减速器：人形哪些关节用哪种？为什么？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · 谐波减速器 vs 行星减速器：人形哪些关节用哪种？为什么？</summary>
 
 **答**：人形关节的两类主流减速器：
 
@@ -862,7 +851,7 @@ $$\ddot{q} = J_1^+ \ddot{x}_{1,des} + N_1 \ddot{q}_2$$
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N2</b> · 串联弹性致动器（SEA）和直驱（QDD）在腿足里各有什么优劣？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · 串联弹性致动器（SEA）和直驱（QDD）在腿足里各有什么优劣？</summary>
 
 **答**：
 
@@ -883,7 +872,7 @@ $$\ddot{q} = J_1^+ \ddot{x}_{1,des} + N_1 \ddot{q}_2$$
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N3</b> · 为什么轮足机器人控制器主流是 LQR，而四足是 MPC？两者的本质区别是什么？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 为什么轮足机器人控制器主流是 LQR，而四足是 MPC？两者的本质区别是什么？</summary>
 
 **答**：轮足 = 轮 + 双腿（Ascento 等），本体是连续接触的倒立摆。
 

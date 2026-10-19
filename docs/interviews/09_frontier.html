@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卷九 · 🔥 近期热门方向与前沿题目</title>
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="docs/interviews/09_frontier.md">
+<meta name="aris:source-sha256" content="919fb2e525c4008838972caaa819bfe272553c452b728ab483af95db7cebeb27">
+<meta name="aris:generated-at" content="2026-10-19 01:18 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+nav.toc a.back-home {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+nav.toc a.back-home:hover {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+details.qa { margin: 8px 0; }
+details.qa:hover { border-color: var(--primary-soft); box-shadow: 0 1px 4px rgba(26,74,140,0.06); }
+details summary {
+  cursor: pointer;
+  padding: 11px 14px;
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  list-style: none;
+  user-select: none;
+}
+details.qa summary { color: var(--ink); }
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+  color: var(--primary);
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details[open].qa { background: #fdfcf7; }
+details > :not(summary) { padding: 10px 16px; }
+details p:first-of-type { margin-top: 8px; }
+details p:last-of-type { margin-bottom: 10px; }
+
+/* difficulty pills: L1 green / L2 yellow / L3 red */
+.lv {
+  display: inline-block;
+  padding: 1px 7px;
+  margin-right: 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  vertical-align: 1px;
+  line-height: 1.5;
+}
+.lv-l1 { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.lv-l2 { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.lv-l3 { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* frequency badge: 🔥×N */
+.freq {
+  display: inline-block;
+  padding: 1px 7px;
+  margin-right: 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  border: 1px solid var(--border-soft);
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  vertical-align: 1px;
+  line-height: 1.5;
+}
+.freq-hot { background: #fff1e6; color: #b8390e; border-color: #fcd9c0; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <a class="back-home" href="../index.html">← 返回主册</a>
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#1-决策模型与机器人应用2-题">§1 决策模型与机器人应用（2 题）</a>
+</li>
+<li><a href="#2-通用模型控制与-vla-协作3-题">§2 通用模型控制与 VLA 协作（3 题）</a>
+</li>
+<li><a href="#3-具身-agentharness-与自我改进3-题">§3 具身 Agent、Harness 与自我改进（3 题）</a>
+</li>
+</ol>
+</nav>
+
+<main>
+
+
+
+
+<h1 id="卷九---近期热门方向与前沿题目">卷九 · 🔥 近期热门方向与前沿题目</h1>
+<blockquote><p>中文具身智能面试题库 · <strong>第九卷</strong> 观察窗口：2026 年 8—10 月 · 资料核对：2026-10-19；早期研究用于背景补充。 <strong>题目统计</strong>：普通问答 0 · 前沿拓展 8 · 手撕 0 · N 备选 0 · 合计 <strong>8</strong> 个条目。</p></blockquote>
+<p><strong>难度分布（全卷）</strong>：L1 <strong>0</strong> · L2 <strong>5</strong> · L3 <strong>3</strong></p>
+<p>本卷集中整理这段时间关注的热门方向：Jev、通用模型控制机械臂、Astra＋VLA、具身 Agent／Harness 与 RSI。<strong>🔥 表示近期关注方向，不是企业面试频次或量化热度排名。</strong></p>
+<p>题目依据原论文、作者代码和官方文档整理，统一标为“前沿拓展·非面经”；没有可计的具身企业面试原问，不声称企业问过，也不计面经频次。作者实验结论仅适用于其公开设置。</p>
+<p><a href="../index.html">返回主册</a></p>
+<hr />
+<h2 id="1-决策模型与机器人应用2-题">§1 决策模型与机器人应用（2 题）</h2>
+<details class="qa qa-frontier" id="f01">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">前沿拓展·非面经</span> <b>F01</b> · Jev／System One／RLCD 在公开资料中分别指什么？与 JEPA 有何区别？</summary>
+<p><strong>答</strong>：TypeSafe 将 Jev 定位为首个 System One 模型：对给定状态和预定义问题输出类型化、带概率的决策。RLCD 是其公布的训练方法名称，意为“面向校准决策的强化学习”。Meta 的 JEPA 是联合嵌入预测架构，研究目标与接口均不同。</p>
+<p><strong>易错</strong>：名称相近不代表同一模型；官方未公开足以复现的 RLCD 损失、网络细节与训练数据，不能自行补写算法。</p>
+<p><strong>资料</strong>：<a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">TypeSafe 原始公告</a>、<a href="https://ai.meta.com/research/publications/self-supervised-learning-from-images-with-a-joint-embedding-predictive-architecture/">Meta I-JEPA 原始研究页</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<details class="qa qa-frontier" id="f02">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">前沿拓展·非面经</span> <b>F02</b> · RoboJEV 怎样让 Jev 控制机械臂？为什么不能只看 schema 和置信度验收？</summary>
+<p><strong>答</strong>：RoboJEV 把 MuJoCo 的末端／物体位姿、夹爪与接触等特权结构化状态交给 TypeSafe Jev；先选意图，再选 XYZ 方向和夹爪指令，由笛卡尔控制器执行、物理判据验收。schema 只约束输出形状；<code>confidence</code> 是概率分布集中度，校准也不保证当前动作成功。</p>
+<p><strong>易错</strong>：该项目无相机输入，API 等待时仿真暂停，演示视频省略等待，未验证真机；Jev 另有实验性图像接口，不代表本项目采用视觉。</p>
+<p><strong>资料</strong>：<a href="https://github.com/lykycy123/RoboJEV">RoboJEV 作者仓库</a>、<a href="https://docs.typesafe.ai/introduction">TypeSafe 入门文档</a>、<a href="https://docs.typesafe.ai/introduction/machine-learning-primer">概率校准说明</a>、<a href="https://docs.typesafe.ai/confidence">置信度说明</a>、<a href="https://docs.typesafe.ai/images">实验性图像文档</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<hr />
+<h2 id="2-通用模型控制与-vla-协作3-题">§2 通用模型控制与 VLA 协作（3 题）</h2>
+<details class="qa qa-frontier" id="f03">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">前沿拓展·非面经</span> <b>F03</b> · Astranomy 的 Direct、Agentic、Orchestrated 三种 Astra 机器人接口如何分工？</summary>
+<p><strong>答</strong>：Direct 每次由 Astra 直接给末端／关节目标或轨迹段，不保留跨调用会话；Agentic 用持久会话保留交互历史并生成动作；Orchestrated 审阅动作模型的候选，可接受、修改或接管。动作段执行后再送新图像、机器人状态和反馈。模型推理耗时与底层控制频率应分别测量。</p>
+<p><strong>易错</strong>：报告的 15 Hz 是控制步频率；成功回合中的 Direct 末端接口平均单次推理约 18.56 秒，不能写成 Astra 以 15 Hz 决策；其仿真在推理期间暂停。</p>
+<p><strong>资料</strong>：<a href="https://research.nvidia.com/labs/srl/projects/astranomy/">NVIDIA Astranomy 作者报告</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<details class="qa qa-frontier" id="f04">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">前沿拓展·非面经</span> <b>F04</b> · RoboDojo 的 Astra 演示能证明什么？为什么不能据此认定动态真机控制可靠？</summary>
+<p><strong>答</strong>：RoboDojo 主评测是 42 个任务、2100 次仿真试验，说明模型在该动作接口和基准下能完成部分任务。真机仅为选择性诊断；作者因不合理或不安全动作及设备损伤中止正式真机协议。因此需另测推理等待期间的环境变化、接触扰动、安全停止与实际成功率。</p>
+<p><strong>易错</strong>：选出的真机片段不是完整真机基准；仿真任务成功也不能推出连续动态环境或硬件上的实时闭环可靠性。</p>
+<p><strong>资料</strong>：<a href="https://arxiv.org/html/2609.24170v1">RoboDojo Astra 原论文</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<details class="qa qa-frontier" id="f05">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">前沿拓展·非面经</span> <b>F05</b> · Astra＋VLA：候选轨迹审阅与 Python 原语编排有何不同？</summary>
+<p><strong>答</strong>：银河通用研究让任务微调 π0.5 先给候选关节轨迹，Astra 选择沿用前段或用短末端动作局部覆盖。PyRUA-Lean 则由 Astra 写 Python cell，组合含冻结 VLA 的原语、检查中间结果并决定后续调用。前者改候选动作，后者编排可复用执行接口。</p>
+<p><strong>易错</strong>：银河通用结果是 RoboDojo 仿真子集；PyRUA 的无 VLA 扩展是另设实验，4B Coder 未在该设置测试。不能混成同一系统或泛化到真机。</p>
+<p><strong>资料</strong>：<a href="https://arxiv.org/html/2609.38537v1">银河通用候选轨迹研究</a>、<a href="https://arxiv.org/html/2610.01939v2">PyRUA-Lean 原论文 v2</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<hr />
+<h2 id="3-具身-agentharness-与自我改进3-题">§3 具身 Agent、Harness 与自我改进（3 题）</h2>
+<details class="qa qa-frontier" id="f06">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">前沿拓展·非面经</span> <b>F06</b> · 机器人 harness 如何把观测、动作执行和验收接成物理闭环？</summary>
+<p><strong>答</strong>：Thea 每轮汇入新鲜物理观测，模型选工具，执行后由 harness 触发操作评价；Show-Harness 让 VLM 输出离散语义动作，再由本体解释器转成有工作空间限制的控制目标。二者均让模型动作经过执行层，并据后续观测继续决策；Thea 另设强制操作评价。</p>
+<p><strong>易错</strong>：模型说“完成”、工具返回成功或评价器给分都不能单独充当物理真值；不同论文的工具调用与语义动作接口也不能混写。</p>
+<p><strong>资料</strong>：<a href="https://eit-hai.github.io/thea/system.html">Thea 作者系统说明</a>、<a href="https://arxiv.org/html/2609.10522v1">Show-Harness 原论文</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<details class="qa qa-frontier" id="f07">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">前沿拓展·非面经</span> <b>F07</b> · 具身 Agent 的“递归自我改进”（RSI）究竟在修改什么？</summary>
+<p><strong>答</strong>：先标明改动对象与生效时点。RegenHarness 提议跨任务修订上下文、模板和路由等配置；COAP 由 coding agent 在开发期改共享代码，执行期冻结；EmbodiedEvo 继承代码技能和文字经验；ENPIRE 在人工协助建立任务接口后，还可改训练算法并更新策略权重。</p>
+<p><strong>易错</strong>：一次失败重试不等于跨任务改进；这里 RSI 是 Recursive Self-Improvement，运动模仿论文中的 RSI 也可指 Reference State Initialization。</p>
+<p><strong>资料</strong>：<a href="https://arxiv.org/html/2609.27612v1">RegenHarness 原论文</a>、<a href="https://arxiv.org/html/2610.12369v1">COAP 原论文</a>、<a href="https://arxiv.org/html/2610.18867v1">EmbodiedEvo 原论文</a>、<a href="https://arxiv.org/html/2606.19980v1">ENPIRE 原论文</a>、<a href="https://arxiv.org/abs/1907.11842">Reference State Initialization 原论文</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+<details class="qa qa-frontier" id="f08">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">前沿拓展·非面经</span> <b>F08</b> · 如何验证机器人 RSI 不是回归、评测泄漏，或只有改进协议没有增益？</summary>
+<p><strong>答</strong>：保留旧版，比较时固定或记录模型／策略版本与预算，使用独立验收指标；开发、选优、留出测试按任务与布局隔离，记录每次改动、失败和回滚，在新场景重复比较并单列真机验证。RegenHarness 提出版本门禁，尚未证明持续量化增益；COAP 的结果限于使用已知资产的仿真；ENPIRE 与 EmbodiedRSI 的真机证据限于各自配置的任务。</p>
+<p><strong>易错</strong>：验证集单调上升不是未见任务或无限轮次自我进化；EmbodiedRSI 真机底层策略先按任务示教微调，再冻结，不能称本体零样本。</p>
+<p><strong>资料</strong>：<a href="https://arxiv.org/html/2609.27612v1">RegenHarness 原论文</a>、<a href="https://arxiv.org/html/2610.12369v1">COAP 原论文</a>、<a href="https://arxiv.org/html/2606.19980v1">ENPIRE 原论文</a>、<a href="https://arxiv.org/html/2610.10498v1">EmbodiedRSI 原论文</a>。</p>
+<p><strong>性质</strong>：依据技术资料整理的学习问答，非面经，不计频次。</p>
+</details>
+
+<footer class="aris-footer">
+  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
+  source path <code>docs/interviews/09_frontier.md</code> ·
+  SHA256 <code>919fb2e525c4</code> ·
+  generated at 2026-10-19 01:18 UTC.
+  This is a generated view — edit the source Markdown, then re-render.
+</footer>
+</main>
+
+</div>
+</body>
+</html>

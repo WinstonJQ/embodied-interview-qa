@@ -7,8 +7,8 @@
 
 <meta name="generator" content="ARIS render-html (academic, v1)">
 <meta name="aris:source-path" content="docs/interviews/07_perception_nav.md">
-<meta name="aris:source-sha256" content="b427dd1e41cd9affb6cd57ade37c05bfd9ae47251e57aa9efb291a97937485ee">
-<meta name="aris:generated-at" content="2026-06-06 03:19 UTC">
+<meta name="aris:source-sha256" content="a8d82b0d2850baf09f4a186f19093e37ce55b1ceaba9458e467ca2aac80a9782">
+<meta name="aris:generated-at" content="2026-10-19 01:18 UTC">
 
 <!-- MathJax 3 -->
 <script>
@@ -401,6 +401,8 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 </li>
 <li><a href="#8-端到端-vln-vla-与前沿判断5-题">§8 端到端 VLN-VLA 与前沿判断（5 题）</a>
 </li>
+<li><a href="#a-本次公开面经增补数据筛选与导航排障3-题">§A 本次公开面经增补：数据筛选与导航排障（3 题）</a>
+</li>
 <li><a href="#9-低频备选3-题">§9 低频备选（3 题）</a>
 </li>
 <li><a href="#h-手撕代码7-题">§H 手撕代码（7 题）</a>
@@ -414,8 +416,9 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 
 
 <h1 id="卷七--3d-感知--slam--vln--零样本-objectnav--embodied-vlm--高频面试题">卷七 · 3D 感知 / SLAM / VLN / 零样本 ObjectNav / Embodied VLM · 高频面试题</h1>
-<blockquote><p>中文具身智能秋招高频面试题库 · <strong>第七卷</strong> 题源：牛客 / 知乎 / CSDN 公开面经 / 深蓝学院题库 / GankInterview 总结 / VLN/ObjectNav arXiv 高引论文与项目页 / GitHub awesome-* 仓库 同义题合并后 <strong>60 题</strong>（主表 57 题：频次 ≥3 或权威破例 + 低频备选 3 题）</p></blockquote>
-<p><strong>难度分布</strong>：L1（必会） <strong>10</strong> · L2（进阶） <strong>35</strong> · L3（顶级 / 前沿） <strong>12</strong> （低频备选另计：L2 ×2 / L3 ×1）</p>
+<blockquote><p>中文具身智能秋招高频面试题库 · <strong>第七卷</strong> 题源：牛客 / 知乎 / CSDN 公开面经 / 深蓝学院题库 / GankInterview 总结 / VLN/ObjectNav arXiv 高引论文与项目页 / GitHub awesome-* 仓库 <strong>题目统计</strong>：普通问答 60 · 手撕 7 · N 备选 3 · 合计 <strong>70</strong> 个条目。</p></blockquote>
+<p><strong>难度分布（全卷，含手撕与 N 备选）</strong>：L1 <strong>14</strong> · L2 <strong>43</strong> · L3 <strong>13</strong></p>
+<blockquote><p>2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。</p></blockquote>
 <p><strong>使用方式</strong>：题目默认折叠，点开看答案。建议按 <strong>L1 → L2 → L3</strong> 顺序刷；同级内按频次从高到低。手机端原生支持。</p>
 <p><strong>重点章节</strong>：本卷 §5 VLN / §6 零样本 ObjectNav / §7 Embodied VLM 三节共 30 题，是 2024-2026 视觉语言导航 / VLA 算法岗的核心考察面，L3 难题多集中在这三节。§1-§4 是支撑性章节（3D 感知 / NeRF / SLAM / 经典导航栈），偏 L1/L2，是上层方法的"基本功"。</p>
 <p><strong>与其他卷的关系</strong>：本卷与卷三（VLA / 模仿学习）在 prompt 工程 / VLM 调用 / cross-modal 表征上有少量重叠——视角不同：卷三讲 manipulation 上的 VLA 架构，本卷讲 navigation 上的 VLM 应用。</p>
@@ -492,7 +495,7 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>易错</strong>：GaussianGrasper 仍<strong>每场景重训</strong>，不是 zero-shot 部署。其优势更多在"<strong>特征蒸馏 + GS 几何</strong>联合"，而不仅是"换了 GS 就快"。真正实时 zero-shot grasping 还得靠 RGB-D 端到端模型（如 AnyGrasp）。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2 (破例)</span> <b>Q10</b> · NeRF / 3DGS 实时性瓶颈在哪？训练 / 渲染 / 编辑 哪个最难做 < 30 Hz？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q10</b> · NeRF / 3DGS 实时性瓶颈在哪？训练 / 渲染 / 编辑 哪个最难做 < 30 Hz？</summary>
 <p><strong>答</strong>：三环节延迟来源不同：</p>
 <table><thead><tr><th></th><th>NeRF 瓶颈</th><th>3DGS 瓶颈</th></tr></thead><tbody><tr><td>训练</td><td>每像素数百次 MLP 前向</td><td>每像素排序 + α-blend</td></tr><tr><td>渲染</td><td>volumetric ray marching</td><td>tile-based 光栅化（已较快）</td></tr><tr><td>编辑</td><td>改一处需重训</td><td>改局部高斯即可</td></tr></tbody></table>
 <p><strong>&lt; 30 Hz 难点</strong>：</p>
@@ -621,12 +624,11 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>演进核心</strong>：无历史 → 时序历史 → 拓扑空间历史。R2R SR：VLN-BERT 63% → HAMT 66% → DUET 72%。</p>
 <p><strong>易错</strong>：DUET topology graph <strong>在线构建</strong>——agent 走过自动加，不需要先验地图。HAMT history token 不是无限增长——窗口 K 是超参，过长 token 数太多。</p>
 </details>
-<details class="qa">
+<details class="qa" id="q26">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q26</b> · NaVid 怎么做到"无地图、无深度、无里程计"也能做 VLN-CE？</summary>
-<p><strong>答</strong>：NaVid（Zhang RSS 2024）核心思路：<strong>把 VLN-CE 当视频理解任务</strong>，用 LLaMA-VID 改造的 video-VLM 直接吃单目 RGB 视频流，输出下一步低层动作。</p>
-<p><strong>架构</strong>：输入 = 当前帧 + 过去 32 帧 RGB（不要 panorama）+ 文本指令；视觉编码每帧 EVA-CLIP 抽特征 → 时序压缩到 4 token/帧；LLaMA-7B LoRA 微调输出文本动作（"前进 0.25 m" / "右转 15°"）；训练 510k VLN trajectory。</p>
-<p><strong>为什么"无地图无深度"能 work</strong>：视频隐式编码空间几何（光流暗含深度）；LLM 常识助推（"看到楼梯就上楼"）；指令本身是高层语义，不需厘米级精度。</p>
-<p><strong>易错</strong>：NaVid <strong>不是 zero-shot</strong>——仍需 510k trajectory SFT；相比 BERT 系是"VLM 替代任务专家网络"。SR 约 37% on R2R-CE val-unseen——仍低于专家方法（ETPNav 57%）但接近 SOTA。</p>
+<p><strong>答</strong>：NaVid 用视频 VLM 将单目 RGB 历史与语言指令映射为导航动作，不显式输入深度、里程计或地图。作者架构以 Vicuna-7B 为语言主干：历史帧压缩为每帧 4 个 token，当前帧保留 64 个 token，以兼顾长历史与当前细节。其导航训练集规模按 samples 统计，不能写成相同数量的独立完整轨迹。</p>
+<p><strong>易错</strong>：不显式使用地图不等于没有空间表征，也不等于 zero-shot；任务、训练数据和评测划分必须说明，不能混用导航样本数与 trajectory 数。</p>
+<p><strong>核验</strong>：<a href="https://pku-epic.github.io/NaVid/">NaVid 作者项目页</a>。本题频次沿用历史记录，本轮只修订答案。</p>
 </details>
 <details class="qa">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×3</span> <b>Q27</b> · Uni-NaVid 怎么统一 VLN / ObjectNav / EQA / 人物跟随四类任务？token merging 起什么作用？</summary>
@@ -658,7 +660,7 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 <p><strong>易错</strong>：high-level action ≠ "真机可部署"——你仍需 PointNav 控制器把"去那个 waypoint"落到 cmd_vel。真正的 sim2real gap 在 PointNav，不在 VLN 上层决策。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2 (破例)</span> <b>Q31</b> · VLN-R1：RFT（reinforcement fine-tuning）解决了 SFT 的什么短板？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q31</b> · VLN-R1：RFT（reinforcement fine-tuning）解决了 SFT 的什么短板？</summary>
 <p><strong>答</strong>：VLN-R1（Qi 等 2025，arXiv 2506.17221）针对 SFT 核心问题：<strong>仅模仿专家无法处理 OOD</strong>——没见过的环境就崩。</p>
 <p><strong>RFT 改造</strong>：SFT 阶段在 VLN-Ego 数据集（HK 大 + 上海 AI Lab）模仿专家；RFT 阶段用 <strong>GRPO</strong>（DeepSeek-R1 同款）微调，reward = 成功 + SPL；关键 trick <strong>Time-Decayed Reward</strong>——离目标近的步奖励越大。</p>
 <p><strong>收益</strong>：R2R-CE val-unseen SR：SFT 41% → RFT 49%（+8pt）；OOD 长指令鲁棒性提升；sim→real gap 缩小。RFT 有效原因：SFT 教模仿，RFT 教达成目标，目标导向 reward 更鲁棒。</p>
@@ -855,41 +857,60 @@ SAM (prompt=bbox) → pixel-precise mask</code></pre>
 <p><strong>为什么 ObjectNav 主流用 Habitat</strong>：① 渲染速度（RL 需 1B+ frames，唯一可大规模）；② HM3D 1000+ 真实房屋扫描，规模/真实/标注最优；③ Habitat Challenge 每年办，CVPR Embodied AI 默认平台。</p>
 <p><strong>易错</strong>：Habitat 3 加 humanoid + 物理交互，已追赶 AI2-THOR；别按 2020 旧知识答"Habitat 不能交互"。NeurIPS 2024 / 2025 Embodied AI 主流仍 Habitat-Lab。</p>
 </details>
-<details class="qa">
+<details class="qa" id="q54">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q54</b> · VLN 在真实机器人 vs 仿真的最大 gap 在哪？哪些 trick 能拉近？</summary>
-<p><strong>答</strong>：四大 gap：① <strong>视觉</strong>（仿真渲染 vs 真实相机：曝光、白平衡、运动模糊、畸变）；② <strong>空间结构</strong>（仿真静态整洁，真实动态：人 / 宠物 / 物品移位）；③ <strong>底层控制</strong>（PointNav 仿真完美，真机有打滑、不平、轮速误差）；④ <strong>指令分布</strong>（R2R 指令风格统一，真实用户随意：停顿、口误、省略）。</p>
-<p><strong>拉近 trick</strong>：域随机化（光照/纹理/噪声）、真机 demo 微调 VLM、保守 controller（容差放宽到 1.5-2 m）、failure recovery、闭环 VLM verification、panorama → 单目蒸馏。</p>
-<p><strong>实务</strong>：2024-2025 真机 VLN 论文（NaVid 实机、Mobile-ALOHA + VLN）仿真 → 真机 SR 掉 20-40pt 是常态；OK-Robot / VoxPoser 做了更激进 zero-shot 真机方案。</p>
-<p><strong>易错</strong>：sim-to-real 不只是"加噪声重训"——要从<strong>任务定义</strong>层面缩 gap（成功阈值放宽、step 上限拉长）；不要假设"仿真 SR 60% 真机也 60%"。</p>
+<p><strong>答</strong>：主要差距包括图像和深度成像、动态场景、定位与控制误差、通信延迟，以及真实语言指令的分布。先对齐动作接口、坐标系、相机预处理、成功定义和评测时限，再分模块回放定位问题；可用有针对性的随机化、真实数据适配、闭环反馈和失败恢复验证改进。报告成功率、路径效率及失败类别。</p>
+<p><strong>易错</strong>：不能通过放宽成功距离、延长时限或挑选场景后，直接宣称原指标提升；协议变更必须单列，不能与原结果作同口径比较。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/1807.06757">具身导航评测建议</a>、<a href="https://pku-epic.github.io/NaVid/">NaVid 作者页</a>。本题频次沿用历史记录，本轮只修订答案。</p>
+</details>
+<details class="qa" id="q55">
+<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q55</b> · 怎样判断 VLM 直接做导航策略的可行性？应与任务规划和机器人操作怎样区分？</summary>
+<p><strong>答</strong>：可行性要按具体系统的输入输出、地图依赖、训练数据和动作空间讨论。例如 NaVid 从视频与指令预测导航动作；RoboFlamingo 的原工作研究语言条件操作、主要使用 CALVIN，不能据此称其为端到端 VLN。判断真机价值还需测延迟、反馈频率、失败恢复、未见场景与底层接口，而非只比较单一成功率。</p>
+<p><strong>易错</strong>：VLM 作为任务规划器、直接动作策略、经典控制器的条件输入，是不同架构；“端到端”本身不证明更强，也不能给出无统计依据的行业占比。</p>
+<p><strong>核验</strong>：<a href="https://pku-epic.github.io/NaVid/">NaVid 作者页</a>、<a href="https://proceedings.iclr.cc/paper_files/paper/2024/hash/71639c317fb0bf398835627b4418693e-Abstract-Conference.html">RoboFlamingo ICLR 论文</a>。本题频次沿用历史记录，本轮只修订答案。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q55</b> · VLMnav / Nav-CoT / RoboFlamingo：端到端 VLN-VLA 真的可行吗？2026 年的判断</summary>
-<p><strong>答</strong>：<strong>端到端 VLN-VLA</strong>：图像 + 指令 → 大 VLM → 动作或路径，不用 frontier / waypoint / semantic map 中间表征。</p>
-<p><strong>代表</strong>：VLMnav (2024) GPT-4V zero-shot；Nav-CoT / Nav-R1 (2025) CoT 推理 + 动作；RoboFlamingo (ICLR 2024) OpenFlamingo 导航 + 操作；NaVid / Uni-NaVid 视频 VLM 端到端 VLN-CE。</p>
-<p><strong>2026 判断</strong>：</p>
-<ul><li><strong>学术</strong>：端到端是趋势，VLN-R1 / Uni-NaVid 在 R2R-CE 上接近 panorama 方法</li><li><strong>工程离工业部署还差</strong>：延迟（VLM 0.5-3 s）、可解释性差（黑盒 debug 难）、错误归因难（感知错还是规划错？）</li><li><strong>混合架构仍是 2026 主流</strong>：VLM 出 high-level 决策 + 经典 controller 落地（如 NaVILA）</li></ul>
-<p><strong>易错</strong>：不要把"端到端 = 更强"绑定——算力 + 数据充裕时端到端能逆袭模块化，但当前阶段模块化在真机部署 dominate。RT-2 / OpenVLA 是 manipulation 端到端好例子，VLN 还差几步。</p>
-</details>
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2 (破例)</span> <b>Q56</b> · VLFM vs OpenFMNav 选哪个作 zero-shot baseline？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q56</b> · VLFM vs OpenFMNav 选哪个作 zero-shot baseline？</summary>
 <p><strong>答</strong>：实务推荐 <strong>VLFM</strong> 作首选 baseline，OpenFMNav 在以下情况下用：</p>
 <table><thead><tr><th>选择</th><th>理由</th></tr></thead><tbody><tr><td><strong>VLFM 优先</strong></td><td>① 单 VLM 调用（BLIP-2），延迟稳定；② 代码极简，复现快；③ HM3D zero-shot SR 52.5% 已经够 benchmark</td></tr><tr><td><strong>OpenFMNav 优先</strong></td><td>① 自由形式指令（属性 + 关系）；② 罕见类别需要开放词汇检测；③ 不在意延迟（OpenFMNav 单步 1-3 s）</td></tr></tbody></table>
 <p><strong>复现成本</strong>：VLFM 在 Habitat 上 1-2 周可复现 → 论文 baseline 大部分都引用 VLFM。</p>
 <p><strong>易错</strong>：不要在文章里写"我们的 baseline 是 VLFM"然后用 OpenFMNav 设置 evaluate ——两者<strong>任务定义和数据 split 都需对齐</strong>才能公平比较。HM3D ObjectNav 与 HM3D-Sem <strong>不是同一个评测</strong>——有些工作混用。</p>
 <p><strong>破例说明</strong>：本题频次 2 但来自论文 baseline 选择实务问题，权威工作（VLFM ICRA 2024 / OpenFMNav NAACL 2024）双独立来源，主表保留。</p>
 </details>
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2 (破例)</span> <b>Q57</b> · 未来 2 年（2026-2028）导航方向的 3 个预测：world model 介入？多机器人协作？VLA 一统？</summary>
-<p><strong>答</strong>：3 个有依据的预测：</p>
-<ol><li><strong>World Model 进入导航</strong>：当前 frontier / VLM 是<strong>反应式</strong>；未来 agent "在心里走一遍"（类似 Dreamer / V-JEPA 2）。Genie / 1X 世界模型 / GR00T 正向导航延伸，2026-2027 大概率出现"导航 dreamer"。</li><li><strong>多机协作 / 人机协同</strong>：单机导航接近天花板；下阶段是无人机 + 地面机器人协作探索、人机协作 VLN。</li><li><strong>VLA 一统</strong>：OpenVLA / π0 / Helix / GR00T-N2 追求"一模型做导航 + 操作"。短期 (2026) 不会完全统一（长程 vs 精控差异大）；中期 (2027-2028) 可能基于 video-VLM + 真机数据出现强统一模型。</li></ol>
-<p><strong>反预测</strong>：经典栈（Nav2 + 闭集检测）<strong>不会消亡</strong>，与 VLM-driven 长期共存。</p>
-<p><strong>易错</strong>：开放题没标答；面试<strong>有依据 + 自洽</strong> &gt; 猜对，引用论文 / 数据支持立场显得专业。</p>
-<p><strong>破例说明</strong>：开放预测题面试常见（特别是顶级 lab / startup），频次 2 但代表整类题型，主表保留。</p>
+<details class="qa" id="q57">
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>Q57</b> · 怎样有依据地讨论导航的未来方向，并设计验证方案？</summary>
+<p><strong>答</strong>：把观点写成可检验假设：预测模型能否减少长程规划错误，记忆与结果验证能否改善多步任务，多机器人共享信息能否提升覆盖率。每项都说明基线、未见场景、额外算力与通信成本，以及失败时的替代方案。区分已有实验结论、自己的推论和仍待验证的目标，不给没有证据的实现年份。</p>
+<p><strong>易错</strong>：开放题允许判断，不允许把预测当事实；不能由单机或操作论文推出所有导航任务已接近天花板。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/1807.06757">具身导航评测建议</a>。本题频次沿用历史记录，本轮只修订答案。</p>
 </details>
+<h2 id="a-本次公开面经增补数据筛选与导航排障3-题">§A 本次公开面经增补：数据筛选与导航排障（3 题）</h2>
+<blockquote><p>来自具身算法／导航岗位的具体原问，均仅核到一个独立来源；页面 UI 多显示月日；原帖创建年份经公开结构化字段核实，面试年份未核，不声称本季高频。</p></blockquote>
+<details class="qa" id="q58">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q58</b> · 百万张图里只有少量目标类别，怎样筛出有效且类别均衡的检测训练集？</summary>
+<p><strong>答</strong>：先定义目标类别、场景覆盖和标注标准，留出独立验证集；用已有检测器、视觉语言检索或元数据做粗筛，再人工抽检估计误检与漏检。按类别、场景、难度和重复度分层采样，补充困难负例及稀有类，迭代训练与清洗，并保存筛选规则和版本。</p>
+<p><strong>易错</strong>：模型高分不等于标签正确；只取最高分容易丢掉困难样本，连续帧近重复也不能当成新的数据多样性。</p>
+<p><strong>题源</strong>：<a href="https://www.nowcoder.com/feed/main/detail/2848ed4b83034fbaad17f0166c956d2b?sourceSSR=post">公开面经原帖</a>；具身智能算法实习岗；原问是检测数据筛选，不是 VLA 示教筛选；原帖创建 2026-07-16，编辑/展示 2026-07-17（公开 HTML 结构化记录核实）；面试年份未核。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/2103.00020">CLIP 原论文</a>。</p>
+</details>
+<details class="qa" id="q59">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q59</b> · Nav2 控制机器人直行却左右摇摆，怎样区分规划问题和底层执行问题？</summary>
+<p><strong>答</strong>：同步查看全局路径、局部控制输出、实际速度、odom 和 TF。若路径或角速度指令先振荡，查局部代价地图、定位跳变、控制器参数及速度／加速度约束；若指令平稳而机器人摆动，查轮速闭环、左右轮尺度、机械间隙和通信时延。逐层回放或替换固定指令定位。</p>
+<p><strong>易错</strong>：加平滑器不是通用修复；不准确或高延迟的里程计、时间戳和 TF 应先校正。</p>
+<p><strong>题源</strong>：<a href="https://www.nowcoder.com/feed/main/detail/dc466dc7d2b74b0281f4d852735159cb">公开面经原帖</a>；匿名机器人初创企业导航算法岗；原帖创建 2026-08-24（公开 HTML 结构化记录核实）；面试年份未核。</p>
+<p><strong>核验</strong>：<a href="https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/core_servers/configuring_velocity_smoother/">Nav2 速度平滑器说明</a>。</p>
+</details>
+<details class="qa" id="q60">
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q60</b> · Nav2 缩小障碍物膨胀区能否帮助通过窄道？怎样评估碰撞风险？</summary>
+<p><strong>答</strong>：膨胀层把障碍物周围的距离转换为代价，让规划器倾向保留安全间隙；半径决定影响范围，代价缩放参数影响随距离的衰减。调参前核对 footprint、地图分辨率、障碍物标记和定位误差，再观察路径与局部控制器评分。保留真实碰撞约束，通过窄道与贴障测试验证。</p>
+<p><strong>易错</strong>：膨胀层的软代价与机器人真实外形不同；为“能通过”而缩小 footprint 或忽视定位误差可能掩盖碰撞风险。</p>
+<p><strong>题源</strong>：<a href="https://www.nowcoder.com/feed/main/detail/dc466dc7d2b74b0281f4d852735159cb">公开面经原帖</a>；匿名机器人初创企业导航算法岗；原帖创建 2026-08-24（公开 HTML 结构化记录核实）；面试年份未核。</p>
+<p><strong>核验</strong>：<a href="https://docs.nav2.org/rolling/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/">Nav2 Inflation Layer</a>。</p>
+</details>
+<hr />
 <h2 id="9-低频备选3-题">§9 低频备选（3 题）</h2>
 <blockquote><p>频次 1-2，但来源权威或前沿话题；备查不强求。</p></blockquote>
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2 (低频)</span> <b>N1</b> · NICE-SLAM / Gaussian-SLAM 把 NeRF/GS 当地图表征：实务上是否取代 ORB-SLAM3？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · NICE-SLAM / Gaussian-SLAM 把 NeRF/GS 当地图表征：实务上是否取代 ORB-SLAM3？</summary>
 <p><strong>答</strong>：<strong>短期不会取代</strong>。</p>
 <p><strong>NICE-SLAM / Co-SLAM / SplaTAM</strong>：在线 NeRF/GS-SLAM，能产生<strong>稠密 + 可渲染</strong>地图，对比 ORB-SLAM3 稀疏点云优势在重建。</p>
 <p><strong>短板</strong>：</p>
@@ -899,20 +920,18 @@ SAM (prompt=bbox) → pixel-precise mask</code></pre>
 <p><strong>易错</strong>：Gaussian-SLAM 不等于 ORB + Gaussian map ——它把 GS 当<strong>前端 odometry</strong>而不只是后端 map；这种端到端神经 SLAM 仍是研究阶段。</p>
 </details>
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2 (低频)</span> <b>N2</b> · ETPNav（R2R-CE SOTA）：拓扑图 + 局部 metric 混合表征怎么落地？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · ETPNav（R2R-CE SOTA）：拓扑图 + 局部 metric 混合表征怎么落地？</summary>
 <p><strong>答</strong>：ETPNav（An et al. TPAMI 2024，arXiv 2304.03047）核心：<strong>evolving topological + local panorama predictor</strong>。</p>
 <p><strong>架构</strong>：① 拓扑图在线构建——agent 走过节点 + 边，每节点存 panorama embedding；② waypoint predictor 在 panorama 上预测 12 个候选 waypoint；③ 跨模态决策：指令 + obs + topology → transformer → "去哪个 waypoint" 或 "回退"；④ 回溯：走错可回到老节点重选。</p>
 <p><strong>为什么强</strong>：拓扑记忆避免重复探索；回溯能力处理复杂指令；混合粒度（拓扑粗规划 + 局部 waypoint 精控）。</p>
 <p><strong>结果</strong>：R2R-CE val-unseen SR 57%——2024 上半年 panorama-based 方法 SOTA。</p>
 <p><strong>易错</strong>：拓扑图<strong>在线生长</strong>——非先验地图，新场景从空图开始。回溯机制带来推理开销，<strong>单步可达 0.5 s</strong>，真机部署需要权衡。</p>
 </details>
-<details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2 (低频)</span> <b>N3</b> · DROID-SLAM / DPVO 端到端神经 SLAM 当前的工业可用度？</summary>
-<p><strong>答</strong>：<strong>DROID-SLAM</strong>（Teed NeurIPS 2021）：端到端学习的稠密 BA SLAM，光流 + 几何整体网络化。优势：弱纹理 / 重复纹理 / 长基线显著优于 ORB-SLAM3。短板：显存 10+ GB、推理 &lt; 10 Hz。</p>
-<p><strong>DPVO</strong>（Teed 2023）：DROID-SLAM 轻量后继，单 GPU 实时 30+ Hz、显存 &lt; 4 GB。</p>
-<p><strong>工业可用度</strong>：学术 benchmark（TUM RGB-D / EuRoC）DPVO 持平甚至超过 ORB-SLAM3；真机部署仍少见——主要瓶颈是<strong>无回环检测</strong>（DPVO 只是 VO 不是 SLAM）+ GPU 依赖；特定场景（白墙、玻璃）有不可替代优势。</p>
-<p><strong>预测</strong>：2026-2027 神经 SLAM 在 Jetson Orin 等嵌入式 GPU 普及后会扩大份额；ORB-SLAM3 在 IMU + 多传感器融合方向仍领先。</p>
-<p><strong>易错</strong>：DROID/DPVO 是<strong>视觉 odometry</strong>，回环检测要外挂传统 BoW / NetVLAD；现代工业方案通常<strong>神经 VO + 传统 loop closure</strong> 混合。</p>
+<details class="qa" id="n3">
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · DROID-SLAM / DPVO 端到端神经 SLAM 当前的工业可用度？</summary>
+<p><strong>答</strong>：先按部署约束比较：轨迹与地图质量、跟踪失败率、重定位/闭环、动态物体、内存、速度及传感器支持。DROID-SLAM、DPVO 展示了学习式几何优化/视觉里程计的能力，但 VO 与完整 SLAM 功能不同；传统多传感器系统也可能更符合已有工程接口。用目标设备和保留场景回放，再做真机长期运行验证。</p>
+<p><strong>易错</strong>：论文榜单和单段演示不能证明工业可用或市场份额；也不能给神经 SLAM 普及写确定年份，需分清纯视觉、视觉惯性和多传感器配置。</p>
+<p><strong>核验</strong>：<a href="https://arxiv.org/abs/2108.10869">DROID-SLAM 原论文</a>、<a href="https://arxiv.org/abs/2208.04726">DPVO 原论文</a>。本题历史频次未重核，本轮只修订答案。</p>
 </details>
 <hr />
 <h2 id="h-手撕代码7-题">§H 手撕代码（7 题）</h2>
@@ -1124,8 +1143,8 @@ class PatchEmbed(nn.Module):
 <footer class="aris-footer">
   Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
   source path <code>docs/interviews/07_perception_nav.md</code> ·
-  SHA256 <code>b427dd1e41cd</code> ·
-  generated at 2026-06-06 03:19 UTC.
+  SHA256 <code>a8d82b0d2850</code> ·
+  generated at 2026-10-19 01:18 UTC.
   This is a generated view — edit the source Markdown, then re-render.
 </footer>
 </main>

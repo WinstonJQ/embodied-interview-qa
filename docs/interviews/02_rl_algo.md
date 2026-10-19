@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第二卷**
 > 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / 强化学习算法岗面试汇编
-> 同义题合并后 **43 题**（主表 40 题频次 ≥3 + 低频备选 3 题）
+> **题目统计**：普通问答 40 · 手撕 10 · N 备选 3 · 合计 **53** 个条目。
 
-**难度分布**：L1（必会） **14** · L2（进阶） **22** · L3（顶级难度） **7**
+**难度分布（全卷，含手撕与 N 备选）**：L1 **16** · L2 **27** · L3 **10**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -566,21 +568,14 @@ $$A_i = \frac{r_i - \text{mean}(r_{1..G})}{\text{std}(r_{1..G})}$$
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q32">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q32</b> · VLA 微调中用 PPO 还是 BC？RLHF 和行为克隆的结合方式？</summary>
 
-**答**：**当前主流**：VLA 微调以**行为克隆（BC）/ flow matching 为主**，而非 RLHF+PPO——原因是机器人奖励函数难以自动量化、RM 训练需要大量偏好标注。
+**答**：先按数据、奖励和动作表示选方法。有示教时可用 BC，具体损失依离散动作、连续回归或 flow/diffusion 参数化而定；能获得可靠任务反馈时，再考虑 RL 后训练。PPO 需要定义可计算的动作概率和轨迹采样流程。RECAP 使用示教、自主执行及人工纠正，学习优势条件策略，推理时条件化生成较好动作。
 
-**BC 微调路线**：在演示数据上最小化 $-\log\pi_\theta(a|s, l)$（连续用 MSE/flow 损失，离散用 CE）；OpenVLA / Octo / GR00T 均走此路线。
+**易错**：任务成功奖励不等于人类偏好 RLHF；RECAP 不是 PPO 或简单好样本加权，也不能把 LLM token 的概率比值直接套到任意 flow 动作头。
 
-**PPO / RLHF 在 VLA 的尝试**：
-- 任务成功率作为奖励（0/1），用 PPO 微调 VLA 策略；
-- π0.6 的 RECAP 近似：把演示数据当 offline RL，advantage-conditioned 采样，强化"好动作"权重；
-- 问题：① 真机 rollout 代价高；② 连续动作空间 policy 的概率比值计算不稳定；③ 收敛更慢。
-
-**混合路线**（新兴）：SFT（BC 预训练）→ 少量 RLHF 精调（成功 / 失败 episode 作偏好对） → 接近 DPO 形式。
-
-**易错**：VLA 动作预测通常用 flow matching / diffusion 而非 softmax token，PPO 的 clip ratio 需改造为连续策略形式；不要直接套 LLM RLHF 代码到机器人 VLA。
+**核验**：[RECAP 原论文](https://arxiv.org/abs/2511.14759)、[OpenVLA 原论文](https://arxiv.org/html/2406.09246)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -630,20 +625,14 @@ $$A_i = \frac{r_i - \text{mean}(r_{1..G})}{\text{std}(r_{1..G})}$$
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q35">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×7</span> <b>Q35</b> · Domain Randomization（DR）是什么？为什么有助于 Sim2Real 迁移？</summary>
 
-**答**：**Domain Randomization（DR）**：在仿真训练中随机化物理参数（摩擦系数、质量、关节阻尼、视觉参数如光照/纹理），迫使策略在宽范围条件下仍有效。
+**答**：在仿真训练中随机化外观、动力学、传感器噪声和延迟，降低策略对单一仿真条件的依赖。范围应由真实测量和失效分析指导，并用保留场景检验迁移。可从较窄范围逐步扩展，或用真实数据估计随机化分布；同时核查接触模型、观测与控制接口是否匹配。
 
-**为什么有助于 Sim2Real**：真实环境的精确参数未知，但只要真实参数**落在仿真随机化范围内**，策略就能泛化。训练出来的策略对参数变化鲁棒，本质上是一种多任务训练。
+**易错**：真实参数落在随机化区间内不保证泛化；模型结构失配、未覆盖的组合、尾部事件和训练不足仍会导致失败。
 
-**两类 DR**：
-- **视觉 DR**：光照/颜色/纹理/相机参数 → 让视觉策略不对仿真纹理过拟合
-- **物理 DR**：质量/摩擦/弹性/延迟 → 让控制策略对动力学不确定性鲁棒
-
-**OpenAI Dactyl (2019)**：纯仿真训练（+ 大量 DR）直接迁移到真实五指手完成魔方，是 DR 的里程碑。
-
-**易错**：DR 不是"随机化越大越好"——过度随机化使任务太难学（策略在过于宽泛的参数空间无法收敛）；需要配合 adaptive DR 或 curriculum DR（逐步扩大范围）。
+**核验**：[动力学随机化原论文](https://arxiv.org/abs/1710.06537)、[DROPO 原论文](https://arxiv.org/abs/2201.08434)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -748,10 +737,10 @@ $$r_t = r_t^e + \beta \cdot r_t^i, \quad r_t^i = \text{novelty}(s_t)$$
 
 ## §8 低频备选（3 题）
 
-> 频次 1-2 题，来源有效但低于主表阈值。面试中作为扩展题备用。
+> 旧版列为低频备选；原始次数与题源本轮未重核，展示为“历史低频·待核”。
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N1</b> · 【低频备选】Distributional RL（C51 / QR-DQN）是什么？为什么比期望 Q 更强？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N1</b> · 【低频备选】Distributional RL（C51 / QR-DQN）是什么？为什么比期望 Q 更强？</summary>
 
 **答**：**分布式 RL**：不仅学期望 $\mathbb{E}[G_t]$，而是学**回报的完整分布** $Z(s,a)$（随机变量）。
 
@@ -766,7 +755,7 @@ $$r_t = r_t^e + \beta \cdot r_t^i, \quad r_t^i = \text{novelty}(s_t)$$
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N2</b> · 【低频备选】RLPD（Reinforcement Learning with Prior Data）和纯 SAC 有何不同？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · 【低频备选】RLPD（Reinforcement Learning with Prior Data）和纯 SAC 有何不同？</summary>
 
 **答**：**RLPD（Ball 2023）**：解决"如何在 online RL 中高效利用 offline 先验数据"——把离线数据塞进 replay buffer 一起训练，但做了关键改进：
 
@@ -784,7 +773,7 @@ Actor 仍用标准 SAC 风格最大化 Q，不是 in-sample max（IQL 才是）�
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N3</b> · 【低频备选】Multi-step PPO / APPO（Asynchronous PPO）在大规模分布式训练中怎么用？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 【低频备选】Multi-step PPO / APPO（Asynchronous PPO）在大规模分布式训练中怎么用？</summary>
 
 **答**：**APPO（Sample Factory, PureJaxRL 等）**：将 PPO 的数据收集与策略更新解耦，多个 actor 进程异步采集数据，learner 进程持续更新策略。
 

@@ -2,11 +2,13 @@
 
 > 中文具身智能秋招高频面试题库 · **第八卷**
 > 题源：CodeTop / 牛客面经汇总 / 一亩三分地 / 知乎秋招手撕合集 / GitHub LeetcodeTop · 系统设计来源见各题
-> 同义题合并后 **40 题**（LeetCode 30 + ML 系统设计 5 + 机器人系统设计 5）
+> **题目统计**：普通问答 10 · 手撕 30 · N 备选 0 · 合计 **40** 个条目。
 
-**难度分布**：L1（必会） **8** · L2（进阶） **19** · L3（顶级 / 设计） **13**
+**难度分布（全卷，含手撕与 N 备选）**：L1 **8** · L2 **19** · L3 **13**
 
-**使用方式**：题目默认折叠，点开看答案。LeetCode 段（§1）按高频从高到低排，**只给"考察点 / 关键思路 / 易错"**——不贴完整代码；系统设计段（§2-§3）给"答 / 易错"两段，覆盖架构权衡。手机端原生支持。
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
+
+**使用方式**：题目默认折叠，点开看答案。LeetCode 段（§1）按高频从高到低排，给出**考察点 / 关键实现 / 易错**，代码按手撕题规则保持简短；系统设计段（§2-§3）给"答 / 易错"两段，覆盖架构权衡。手机端原生支持。
 
 **与其他卷的关系**：本卷收纳"通用工程能力"题——LeetCode 不挑公司，ML 与机器人系统设计偏架构权衡，与卷一到卷七的"主题知识"正交。**适合岗位**：所有具身 / 自动驾驶 / VLA 算法岗的一面 coding 与 senior 面 system design 阶段。
 
@@ -960,20 +962,18 @@ def majority_element(nums):
 
 ## §2 ML 系统设计（5 题）
 
-> ML 平台 / 训练基建 / 推理服务的架构题，2 面 / 3 面 senior 阶段常考。来源：知乎 OpenVLA / π0 综述、vLLM / SGLang 文档、HF RLHF 系列博客。
+> ML 平台 / 训练基建 / 推理服务的架构复习题。旧版列出的综述和框架文档只能核技术内容，不能证明面经频次；本节历史次数未全面复核。Q31 另附本轮读到的相近场景实录。
 
-<details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×5</span> <b>Q31</b> · 设计一个 VLA 训练 pipeline（数据 → 训练 → 部署）</summary>
+<details class="qa" id="q31">
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录5次，面经依据未核">历史频次·待核</span> <b>Q31</b> · 设计一个 VLA 训练 pipeline（数据 → 训练 → 部署）</summary>
 
-**答**：
+**答**：先确认本体、任务分布、数据规模、硬件与验收条件。数据层保留轨迹、标定、时间戳、动作单位和版本，按场景/任务隔离训练与评测；训练层先建立可复现基线，再据实测显存与吞吐选择微调、分布式和恢复方案；部署层校验接口与时延，管理模型/数据/配置版本，分阶段上线并保留遥测、失败回流和回滚。
 
-**数据层**：RLDS / LeRobot HF dataset（state, action, image, language）；cross-embodiment 按 action space 对齐（dof / 末端 vs 关节）；按 demo 成功率与轨迹平滑度过滤。
+**易错**：参数量不能单独决定必须用 FSDP，vLLM 也不直接适配任意 VLA 动作头；多工厂部署还需处理环境差异、版本一致性和运维成本。
 
-**训练层**：视觉 backbone（SigLIP / DINOv2 / CLIP）+ 主干 LLM（OpenVLA = LLaMA-2-7B、π0 = PaliGemma-3B）；DDP + ZeRO-2 / FSDP（>7B 必上）；warmup + cosine、bf16；EMA 推理权重。
+**题源补证**：[2026-09-24 原始面经](https://www.1point3acres.com/bbs/thread-1190520-1-1.html)：作者自述前一周参加西雅图匿名具身初创 MLE 面试，要求设计数据、训练与部署流程并考虑 50 家工厂。是相近的系统场景，原问未指定 VLA；仅一份经历，不证明本题旧版“5次”记录，也不支持把本文各实现细节称为原问。
 
-**部署层**：量化（FP16 / int8）、TensorRT / vLLM、action chunking 解耦推理与控制频率、A/B + rollback。
-
-**易错**：不同 dof 需 action token 化或多 head；mixed precision 不开浪费显存；data loader 是 bottleneck 没 prefetch。
+**核验**：[OpenVLA 原论文](https://arxiv.org/html/2406.09246)、[TorchData StatefulDataLoader](https://github.com/meta-pytorch/data/blob/main/torchdata/stateful_dataloader/README.md)。技术资料核答案，不证明面试频次。
 
 </details>
 

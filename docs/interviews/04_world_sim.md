@@ -2,9 +2,11 @@
 
 > 中文具身智能秋招高频面试题库 · **第四卷**
 > 题源：牛客 / 知乎 / CSDN / GitHub 公开面经 / arxiv 论文讨论 / 具身智能算法岗面试汇编
-> 同义题合并后 **31 题**（主表 31 题：频次 ≥3 + Q31 破例入选）
+> **题目统计**：普通问答 31 · 手撕 0 · N 备选 4 · 合计 **35** 个条目。
 
-**难度分布**：L1（必会） **9** · L2（进阶） **18** · L3（顶级难度） **4**
+**难度分布（全卷，含手撕与 N 备选）**：L1 **10** · L2 **20** · L3 **5**
+
+> 2026-10 维护说明：新增题标“低频实录”，保留具体岗位与来源；旧 🔥 数字沿用历史版本，未重核全部原帖，不代表本季度频次。
 
 **使用方式**：题目默认折叠，点开看答案。建议按 **L1 → L2 → L3** 顺序刷；同级内按频次从高到低。手机端原生支持。
 
@@ -519,81 +521,47 @@
 
 > 人形 / 四足 / 操作任务的 sim2real 挑战差异 + 视频世界模型与 JEPA 的应用前景。
 
-<details class="qa">
+<details class="qa" id="q27">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×4</span> <b>Q27</b> · 人形机器人 sim2real 面临哪些特有挑战？和四足机器人 sim2real 有何不同？</summary>
 
-**答**：
+**答**：两者都面对接触、执行器、时延和状态估计误差。人形常多出双足平衡、上肢负载与全身协调，摔倒风险和接触模式也更复杂；但自由度、稳定裕度及控制量取决于具体本体和步态。先校准执行器与时序，再结合参数辨识、域随机化、特权训练/学生蒸馏和真机分阶段测试。
 
-| 维度 | 四足（ANYmal / Unitree Go2） | 人形（Unitree G1 / Figure） |
-|---|---|---|
-| DoF | 12-16 | 30-50+（含双臂） |
-| 稳定性 | 4 接触点，裕度大 | 2 接触点，balance 极敏感 |
-| 主要 gap | 地形接触、地面摩擦 | 全身动力学、髋关节柔顺性 |
-| 仿真工具 | Isaac Lab（模板齐全） | Isaac Lab / MuJoCo（模板快速增加） |
+**易错**：不能用固定自由度、接触点数或“误差1厘米就摔倒”概括所有平台；四足腾空和动态步态也有显著平衡挑战。
 
-**人形特有挑战**：
-1. COM 高，关节误差 1cm 即可导致摔倒；
-2. 30+ 维 joint torques 输出，执行器模型误差被成倍放大；
-3. 双臂 + 行走协同，sim2real 难度非线性增长。
-
-**缓解**：Teacher-Student（特权观测含接触状态）+ RMA 在线适应 + 保守 DR 范围（不能太宽）。
-
-**易错**：人形不是"四足加两条腿"——双足平衡对 contact model 误差极敏感，需比四足更精确的动力学建模。
+**核验**：[VIRAL 原论文](https://arxiv.org/abs/2511.15200)、[快速腿足学习原论文](https://proceedings.mlr.press/v164/rudin22a/rudin22a.pdf)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q28">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×3</span> <b>Q28</b> · 操作任务的 sim2real（抓取/插针/双臂）和运动控制的 sim2real 有何核心区别？</summary>
 
-**答**：
+**答**：两类任务都依赖动力学、接触、感知与执行器建模，但权重随任务变化。行走侧重平衡、足地接触和扰动恢复；抓取、插接等常更敏感于物体几何、摩擦、遮挡和接触状态。分别检查视觉与动力学 gap，用标定、随机化、闭环感知/力控及必要的真机数据验证修正。
 
-| 维度 | 运动控制 sim2real | 操作任务 sim2real |
-|---|---|---|
-| 主要传感器 | IMU + 关节编码器（proprio） | 相机 + 深度 + 力传感器（多模态） |
-| 关键 gap 来源 | 地形接触、动力学参数 | 视觉外观、物体接触/摩擦、末端精度 |
-| 成功指标 | 稳定行走（鲁棒） | 任务完成（精确） |
-| DR 有效性 | 高（地形/摩擦 DR 有效） | 中（接触模型误差难以 DR 覆盖） |
-| 常用仿真器 | Isaac Lab / Isaac Gym | MuJoCo / ManiSkill / SAPIEN |
-| 真机 fine-tune 需求 | 低（zero-shot 较常见） | 中-高（精细操作几乎总需要 fine-tune） |
+**易错**：运动控制的 gap 并未被域随机化普遍解决，操作也并非总要真机微调；是否 zero-shot 只能依具体任务与保留测试结果判断。
 
-**操作的特殊难点**：末端执行器精度要求 < 5mm（插针 < 1mm），仿真的接触误差直接影响任务成败；物体的 CAD 模型与真实物体几何存在偏差，导致视觉特征也有 gap。
-
-**关键差异总结**：运动控制看"稳定鲁棒"，sim2real 靠 DR 基本解决；操作任务看"精确完成"，sim2real 需要数据 + fine-tune + 传感器融合。
-
-**易错**：不能把运动控制的 zero-shot sim2real 成功经验直接套用到操作任务——两者的 gap 来源和解决方案都不同。
+**核验**：[VIRAL 原论文](https://arxiv.org/abs/2511.15200)、[动力学随机化原论文](https://arxiv.org/abs/1710.06537)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q29">
 <summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×3</span> <b>Q29</b> · Genie / 视频生成世界模型和具身智能的关联？它能否直接作为机器人 policy？</summary>
 
-**答**：**Genie**（Google DeepMind，2024 / Genie 3 2025）：从视频自监督学习的交互式世界模型，给定初帧 + 动作指令生成后续帧；Genie 3 实现 24 FPS 实时 3D 世界生成。
+**答**：视频世界模型预测动作或交互条件下的后续观测，可作为训练环境、想象 rollout 或规划的组成部分。Genie 3 官方展示的是可交互生成环境，视觉帧率不是机器人控制频率。成为机器人策略仍需定义观测、目标、动作接口和决策规则，验证物理一致性、时延与迁移。
 
-**与具身的关联**：① 从无标注视频学物理先验，减少真机数据需求；② 生成多样场景替代传统仿真；③ 在生成视频中 rollout 动作序列评估。
+**易错**：世界模型与策略是不同角色，但可以联合构建；不能由“能生成视频”推出能控关节，也不能断言所有视频模型永远不能参与策略。π0 的动作专家本身不是视频世界模型。
 
-**能否直接作为 policy**：目前不能。控制粒度粗（不是 joint torques）、推理延迟高（无法达到 50Hz）、缺少精确物理约束（接触力/惯量）。
-
-**未来方向**：Video World Model + Action Expert 两阶段（类 π0）——视频模型负责感知规划，轻量 action head 输出控制量。
-
-**易错**：视频世界模型（像素空间生成，高保真但慢）≠ Dreamer RSSM（latent 空间预测，快但不可视化）；前者是"看得见的世界"，后者是"隐式的动力学"。
+**核验**：[Genie 3 官方说明](https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/)、[DreamerV3 原论文](https://arxiv.org/abs/2301.04104)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
-<details class="qa">
+<details class="qa" id="q30">
 <summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×3</span> <b>Q30</b> · JEPA（Joint-Embedding Predictive Architecture）和 Dreamer 世界模型的差异？</summary>
 
-**答**：**JEPA**（LeCun 提出，Meta V-JEPA / V-JEPA 2）：在 embedding 空间预测目标特征，不重建像素。
+**答**：JEPA 是预测目标表征的架构原则。V-JEPA 2 先从无动作视频学习特征预测；其动作条件版本 V-JEPA 2-AC 再利用机器人交互数据学习动作对潜在状态的影响，可用于目标导向规划。Dreamer 则从带动作与奖励的交互数据学习潜在动力学，通过想象轨迹训练行为策略；常见 RSSM 配有观测解码与奖励预测。
 
-| | JEPA（V-JEPA） | Dreamer（RSSM） |
-|---|---|---|
-| 预测目标 | 特征向量（feature space） | 像素重建 + latent 预测 |
-| 重建损失 | 无 | 有（解码器） |
-| 训练数据 | 互联网视频（无动作标签） | 带动作的 agent 交互数据 |
-| 可用于控制 | 间接（高质量表征 → 下游 RL） | 直接（imagination rollout 训 actor） |
+**易错**：应区分无动作预训练与动作条件后训练；不能把所有 JEPA 都写成“只能间接控制”，也不能把 latent planning 与 Dreamer 的想象 actor 训练混为一谈。
 
-**V-JEPA 2**（Meta，2025，100 万小时视频预训练）：可做短期物理预测，作为 backbone 提升操作策略效果；类似 VLM 之于 VLA 的作用。
-
-**易错**：V-JEPA 2 已有 action-conditioned 版本（V-JEPA 2-AC），支持短程规划和机器人控制；但它没有 Dreamer 那样的 long-horizon imagination rollout 训 actor 的成熟流程，两者适用场景不同。
+**核验**：[V-JEPA 2 原论文](https://arxiv.org/abs/2506.09985)、[DreamerV3 原论文](https://arxiv.org/abs/2301.04104)。本题频次沿用历史记录，本轮只修订答案。
 
 </details>
 
@@ -616,10 +584,10 @@
 
 ## §7 低频备选（未入主表）
 
-> 以下 4 题频次 1-2，保留供参考。面试中偶发，不作为必刷优先级。
+> 以下 4 题是旧版低频备选，原始次数与题源本轮未重核，保留供参考。
 
 <details class="qa">
-<summary><span class="lv lv-l3">L3</span> <span class="freq">🔥×2</span> <b>N2</b> · V-JEPA 2 的预测目标是什么？和 Dreamer 的 reconstruction loss 有何区别？</summary>
+<summary><span class="lv lv-l3">L3</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N2</b> · V-JEPA 2 的预测目标是什么？和 Dreamer 的 reconstruction loss 有何区别？</summary>
 
 **答**：**V-JEPA 2**（Meta，2025，100 万小时视频预训练）的预测目标是**遮挡区域的 patch 特征向量**，而非像素值：给定上下文帧（部分可见），预测被遮挡 patch 的 encoder 输出（在 feature space 中预测，而非 pixel space）。
 
@@ -634,7 +602,7 @@
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N3</b> · 仿真器中的 actuator 模型如何影响 sim2real？PD/torque 控制的选择？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N3</b> · 仿真器中的 actuator 模型如何影响 sim2real？PD/torque 控制的选择？</summary>
 
 **答**：**Actuator 模型**是 sim2real 中常被忽视的 gap 来源。仿真默认理想执行器（无延迟、无摩擦、线性响应），但真实电机有：电机动态延迟（约 3-10ms）、齿轮传动间隙（backlash）、热效应、电流饱和。
 
@@ -649,7 +617,7 @@
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l1">L1</span> <span class="freq">🔥×2</span> <b>N4</b> · Habitat 3.0 / SAPIEN 的应用场景？和 Isaac Lab 的定位有什么不同？</summary>
+<summary><span class="lv lv-l1">L1</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N4</b> · Habitat 3.0 / SAPIEN 的应用场景？和 Isaac Lab 的定位有什么不同？</summary>
 
 **答**：
 - **Habitat 3.0**（Meta AI）：室内场景导航和人机协作仿真，强调**高真实感室内环境**（PhotoAugmented 渲染）；特色是社交导航（机器人与人协作）和语义导航任务；GPU 并行有限，主打感知-导航研究。
@@ -663,7 +631,7 @@
 </details>
 
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×2</span> <b>N5</b> · 世界模型的"model error accumulation"（模型误差累积）如何缓解？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq" title="旧版记录 2 次，本轮未复核">历史低频·待核</span> <b>N5</b> · 世界模型的"model error accumulation"（模型误差累积）如何缓解？</summary>
 
 **答**：**模型误差累积**：世界模型在 latent 空间的 H 步前向展开中，每步误差叠加，H 步后 latent 偏离真实状态越来越远，导致 imagination 训出的策略在真实环境中失效。
 

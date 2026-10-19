@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>具身智能高频面试题库 · Embodied-AI Interview QA Bank</title>
-<meta name="description" content="中文具身智能秋招高频面试题库 · VLA / 模仿学习 / RL / 世界模型 / 工程落地 / 腿足机器人 / 3D 感知 / VLN / ObjectNav / VLM / LeetCode 与系统设计。主表题来自公开面经，频次 ≥3；近期趋势题用补充标签。">
+<meta name="description" content="中文具身智能面试题库 · VLA / IL / RL / 控制 / 感知导航 / 工程系统。九卷覆盖基础面经与近期热门方向，区分历史频次、低频实录和非面经拓展。">
 <style>
 :root {
   --bg: #fdfcf7;
@@ -224,16 +224,25 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
 <header class="hero">
   <div class="eyebrow">Embodied AI Interview Prep · Open Source · Free</div>
   <h1>具身智能高频面试题库</h1>
-  <p class="subtitle">秋招冲刺向 · 题目来自公开面经</p>
+  <p class="subtitle">秋招复习 · 公开面经实录与标明来源的前沿学习题</p>
   <p class="tagline">
-    覆盖具身智能算法岗的 <strong>8 个方向</strong>：通识基础、RL 算法、VLA / 模仿学习、世界模型 / Sim2Real、工程落地、腿足机器人运动控制 / 全身控制 / 遥操作、3D 感知 / SLAM / VLN / 零样本 ObjectNav / Embodied VLM、通用工程 coding 与系统设计。
-    主表题来自牛客、知乎、小红书、一亩三分地等公开面经，<strong>同义题合并后频次 ≥3</strong> 才入卷；近期趋势题用 <strong>补充</strong> 标签，不伪造频次。
-    每题答案经独立审查后发布。
+    覆盖具身智能算法岗的 <strong>9 个方向</strong>：通识基础、RL 算法、VLA / 模仿学习、世界模型 / Sim2Real、工程落地、腿足机器人运动控制 / 全身控制 / 遥操作、3D 感知 / SLAM / VLN / 零样本 ObjectNav / Embodied VLM、通用工程 coding 与系统设计，以及近期热门方向与前沿题目。
+    目录共 <strong>445 道非 N 备选题 + 19 道 N 备选</strong>，合计 464 个条目，含 84 道手撕题；其中 8 道是零面经频次的前沿拓展。
+    旧 🔥 沿用历史记录，本轮未全面重核，不代表本季度频次；新增实录保留原始面经与岗位范围。
   </p>
 </header>
 
+<section aria-label="本轮更新">
+  <h2>2026-10 · 题库更新</h2>
+  <div class="legend">
+    新增 <strong>18 道低频实录</strong>、<strong>8 道前沿拓展·非面经</strong>，修订 <strong>47 道旧答案</strong>。
+    Agent / Harness 实录主要来自具身企业平台、前端与数据岗位；Jev、Astra、RSI 学习题依据技术资料编写，面经频次为 0。
+    <a href="interviews/05_engineering.html">阅读工程落地 →</a> <a href="interviews/07_perception_nav.html">阅读感知导航 →</a> <a href="interviews/09_frontier.html">🔥 阅读近期热门方向 →</a>
+  </div>
+</section>
+
 <section>
-  <h2><span class="num">§1</span>八卷目录</h2>
+  <h2><span class="num">§1</span>九卷目录</h2>
   <div class="volumes">
 
     <div class="volume-card active">
@@ -265,7 +274,7 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
         <span class="vol-title">VLA / 模仿学习</span>
         <span class="vol-status s-done">77 题</span>
       </div>
-      <p class="vol-scope">具身智能 2024-2026 的核心研究方向——主流视觉-语言-动作模型（OpenVLA、RT-2、π 系列、GR00T-N1）的架构与差别；动作生成方式（Diffusion Policy、ACT、Flow Matching）的对比；模仿学习从行为克隆到 DAgger 的演进；近期补充数据链路、时间同步、真机排障与 LoRA / PEFT 等项目拷打题。VLA 算法岗的必考范围。</p>
+      <p class="vol-scope">视觉-语言-动作模型（OpenVLA、RT-2、π 系列、GR00T-N1）的架构与差别；动作生成方式（Diffusion Policy、ACT、Flow Matching）的对比；模仿学习从行为克隆到 DAgger 的演进；另有数据链路、时间同步、真机排障与 LoRA / PEFT 等项目追问。可作为 VLA 算法岗的复习入口，具体考察依岗位与项目而定。</p>
       </a>
     </div>
 
@@ -285,9 +294,9 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
       <div class="vol-line">
         <span class="vol-id">VOL · 05</span>
         <span class="vol-title">工程落地</span>
-        <span class="vol-status s-done">47 题</span>
+        <span class="vol-status s-done">62 题</span>
       </div>
-      <p class="vol-scope">从算法走向产品的工程命题——VLA 在 Jetson Orin 等边缘平台的实时推理部署；分布式训练框架（FSDP / ZeRO）的选型；teleop 数据采集流程；DROID、Ego4D 等公开数据集的定位与差别。末节为开放题与系统设计，例如"在一年周期内组建团队交付一台家务机器人"的方案规划。</p>
+      <p class="vol-scope">VLA 实时推理部署、分布式训练、teleop 数据采集与开放系统设计。本轮增补 Agent / Harness 平台岗实录，以及训练续跑、机械臂停机与相机丢帧排障。</p>
       </a>
     </div>
 
@@ -296,7 +305,7 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
       <div class="vol-line">
         <span class="vol-id">VOL · 06</span>
         <span class="vol-title">腿足机器人控制 / 全身控制 / 遥操作</span>
-        <span class="vol-status s-done">58 题</span>
+        <span class="vol-status s-done">55 题</span>
       </div>
       <p class="vol-scope">人形与四足机器人运动控制的核心面——底层是浮动基座动力学、Convex MPC 与全身控制（WBC / TSID）等经典最优控制框架；中间层是 RL-based locomotion 的主流策略（Walk These Ways、ASAP 等）；上层是 Apple Vision Pro 遥操作链路与 sim-to-real 迁移路径。人形与四足公司（宇树、智元、Figure、1X 等）的核心考察范围。</p>
       </a>
@@ -320,7 +329,18 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
         <span class="vol-title">通用工程：LeetCode 高频 + 系统设计</span>
         <span class="vol-status s-done">40 题</span>
       </div>
-      <p class="vol-scope">脱离具身主题的通用工程卷，覆盖一面 coding 与 senior 面 system design 两类常考题型——LeetCode 高频 30 题（链表、滑动窗口、动态规划、LRU 等 CodeTop 头部题）、ML 系统设计（VLA 训练 / 推理服务、RLHF 数据 pipeline）、机器人系统设计（perception-planning-control 全栈、多传感器融合、双臂 ROS 2 架构）。具身 / 自动驾驶 / VLA 岗均会考察。</p>
+      <p class="vol-scope">通用工程复习卷，覆盖 coding 与 system design——30 道 LeetCode 题（链表、滑动窗口、动态规划、LRU 等）、ML 系统设计（VLA 训练 / 推理服务、RLHF 数据 pipeline）、机器人系统设计（perception-planning-control 全栈、多传感器融合、双臂 ROS 2 架构）。具体题源与岗位适用范围须分别判断。</p>
+      </a>
+    </div>
+
+    <div class="volume-card active">
+      <a href="interviews/09_frontier.html">
+      <div class="vol-line">
+        <span class="vol-id">VOL · 09</span>
+        <span class="vol-title">🔥 近期热门方向与前沿题目</span>
+        <span class="vol-status s-done">8 题</span>
+      </div>
+      <p class="vol-scope">集中整理 2026 年 8—10 月关注的 Jev / RoboJEV、Astra 控制机械臂与 VLA 协作、具身 Agent / Harness、RSI 等方向。依据原论文、作者代码与官方文档编写，全部标注“前沿拓展·非面经”；火苗表示近期关注主题，不代表企业面试频次。</p>
       </a>
     </div>
 
@@ -333,8 +353,11 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
     <div class="legend-line"><span class="lv lv-l1">L1</span> 必会 · 一面常考 · 基础概念题</div>
     <div class="legend-line"><span class="lv lv-l2">L2</span> 进阶 · 二面常考 · 技术深度题</div>
     <div class="legend-line"><span class="lv lv-l3">L3</span> 顶级 lab · 开放 / 系统设计 / 前沿判断</div>
-    <div class="legend-line" style="margin-top: 10px;"><span class="freq">🔥×12</span> 该题在公开面经中被合并统计了 12 次（同义题归并后）</div>
-    <div class="legend-line"><span class="freq">补充</span> 近期集中出现但未满三源频次证据的题，不伪造频次</div>
+    <div class="legend-line" style="margin-top: 10px;"><span class="freq">🔥×12</span> 历史版本记录的同义题合并次数；本轮未全面重核，不代表本季度频次</div>
+    <div class="legend-line"><span class="freq">低频实录·1源</span> 本轮找到一份独立经历，不足以称高频；同一候选人同公司多轮只计一份</div>
+    <div class="legend-line">🔥 近期热门方向：卷九标题中的火苗表示近期关注主题，不是面经次数或热度排名</div>
+    <div class="legend-line"><span class="freq">前沿拓展·非面经</span> 依据原论文或官方文档整理的 F 编号学习题；零面经频次，不表示企业问过</div>
+    <div class="legend-line"><span class="freq">补充 / N</span> 沿用的补充题或备选题；目录题数并非高频题数量</div>
   </div>
 </section>
 
@@ -346,7 +369,6 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
       <li>手机端原生支持折叠（HTML5 <code>&lt;details&gt;</code>，零 JS），公交地铁也能刷。</li>
       <li>建议按 <strong>L1 → L2 → L3</strong> 的顺序刷；同等级内按频次从高到低。</li>
       <li>答案 ≤350 字，便于背诵；超长的拆"答 / 关键对比 / 易错"三段。</li>
-      <li>每题答案都经过另一组独立 AI 二次审查后发布，减少单一模型的事实错误。</li>
     </ol>
   </div>
 </section>
@@ -358,7 +380,7 @@ footer.foot a:hover { color: var(--primary); border-bottom-color: var(--primary)
     渲染脚本由 <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep">ARIS</a> 提供。
   </p>
   <p>
-    本题库每题答案均经过跨模型审查（执行者 ≠ 审查者）。如发现错误请提 issue 或 PR。
+    题目附有来源与适用范围。如发现错误，欢迎提交 issue 或 PR。
   </p>
 </footer>
 

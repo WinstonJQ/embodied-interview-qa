@@ -1,6 +1,6 @@
 # 具身智能高频面试题库
 
-> 中文具身智能（Embodied AI）秋招高频面试题库 · 题目来自公开面经，频次合并后入卷，每题答案经独立 AI 二次审查  
+> 中文具身智能（Embodied AI）面试题库 · 公开面经选题，另有明确标识的非面经前沿拓展
 > *A Chinese-language interview question bank for Embodied-AI engineering roles (VLA / IL / RL / World Models / Engineering).*
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-2ea44f?logo=github)](https://winstonjq.github.io/embodied-interview-qa/)
@@ -15,6 +15,10 @@
 **👉 <https://winstonjq.github.io/embodied-interview-qa/>**
 
 打开网页直接看；默认全部折叠，点击题目展开答案；手机端原生支持（地铁公交都能刷）。
+
+**🔥 前沿拓展**：[卷九](docs/interviews/09_frontier.html)收录 Jev／RoboJEV、Astra＋VLA、具身 Agent／Harness 与 RSI 等近期关注方向，明确标注为非面经学习题。
+
+下方截图为历史界面示例，题目与统计以在线题库为准。
 
 ### 🖥️ 桌面端预览
 
@@ -60,47 +64,40 @@
 
 ## 这是什么
 
-2024-2026 是具身智能（Embodied AI）行业的窗口期——VLA、人形、四足、灵巧操作算法岗的招聘量井喷，但**面试题源散乱在牛客、知乎、小红书、一亩三分地等多个平台**，没有一个专门针对这一方向、可在手机上随时翻的题库。
+具身智能面试涉及 VLA、模仿学习、控制、感知导航与工程系统，公开面经分散在多个平台。本项目按九卷组织复习范围；普通题提供精简答案和“易错”，手撕题保留实现。
 
-本项目把公开面经里**真实被反复问到的题目**整理成八卷，每题给出 **≤350 字的精简答案 + "易错"一句**——面试前 30 分钟过一遍补盲区，不是看长篇教程的时机。
+面经题以可定位原问的公开经历为依据。论文和官方文档用于核对答案，不能替代面经证明某题被问过。卷九收录 F 编号的前沿学习问答，清楚标为非面经且不计频次。新增实录保留岗位限定：机器人企业的平台、前端或数据岗位，不能直接视作机器人策略算法岗。
 
 ---
 
-## 八卷目录
+## 九卷目录
 
 | 卷 | 主题 | 题数 | 一句话 |
 |---|---|---:|---|
-| [一](https://winstonjq.github.io/embodied-interview-qa/interviews/01_basics.html) | **通识基础**（含 §H 手撕） | 55 | DL 基本盘 + RL 入门 + 机器人学 + 手撕（Attention / LayerNorm / Bellman / VAE ELBO） |
-| [二](https://winstonjq.github.io/embodied-interview-qa/interviews/02_rl_algo.html) | **RL 算法**（含 §H 手撕） | 50 | PPO / SAC / TD3 / 离线 RL / RLHF + 手撕（PPO clipped / GAE / DPO / GRPO 核心公式） |
-| [三](https://winstonjq.github.io/embodied-interview-qa/interviews/03_vla_il.html) | **VLA / 模仿学习**（含 §H 手撕） | 77 | OpenVLA / π 系列 / Diffusion Policy + Flow Matching + 手撕（BC / DP 训练 step / ACT chunking / CLIP InfoNCE） |
-| [四](https://winstonjq.github.io/embodied-interview-qa/interviews/04_world_sim.html) | **世界模型 / Sim2Real** | 31 | Dreamer / V-JEPA / 域随机化 / Isaac Lab，人形和四足公司重点 |
-| [五](https://winstonjq.github.io/embodied-interview-qa/interviews/05_engineering.html) | **工程落地**（含 §H 手撕） | 47 | VLA 部署 / FSDP / teleop 数据飞轮 + 手撕（数值稳定 softmax / CE / KL / Adam） |
-| [六](https://winstonjq.github.io/embodied-interview-qa/interviews/06_legged_control.html) | **腿足机器人控制 / 遥操作**（含 §H 手撕） | 58 | 浮动基座、MPC / WBC、RL-locomotion、AVP teleop、HumanPlus、actuator network sim2real + 手撕（PID / KF / EKF / LQR / 四元数 / IK / 互补滤波 / DH / MPC QP） |
-| [七](https://winstonjq.github.io/embodied-interview-qa/interviews/07_perception_nav.html) | **3D 感知 / SLAM / VLN / ObjectNav / Embodied VLM**（含 §H 手撕） | 67 | 点云 / NeRF / SLAM / Nav2 / HAMT / NaVid / VLFM / SAM 2 + 手撕（IoU / NMS / BFS·DFS / A* / ViT patch） |
-| [八](https://winstonjq.github.io/embodied-interview-qa/interviews/08_coding_systemdesign.html) | **通用工程：LeetCode + 系统设计** | 40 | LeetCode 高频 30 题 + ML 系统设计 5 + 机器人系统设计 5（所有具身 / 自动驾驶岗通用） |
+| [一](docs/interviews/01_basics.html) | **通识基础**（含 §H 手撕） | 55 | DL 基本盘 + RL 入门 + 机器人学 + 手撕（Attention / LayerNorm / Bellman / VAE ELBO） |
+| [二](docs/interviews/02_rl_algo.html) | **RL 算法**（含 §H 手撕） | 50 | PPO / SAC / TD3 / 离线 RL / RLHF + 手撕（PPO clipped / GAE / DPO / GRPO 核心公式） |
+| [三](docs/interviews/03_vla_il.html) | **VLA / 模仿学习**（含 §H 手撕） | 77 | OpenVLA / π 系列 / Diffusion Policy + Flow Matching + 手撕（BC / DP 训练 step / ACT chunking / CLIP InfoNCE） |
+| [四](docs/interviews/04_world_sim.html) | **世界模型 / Sim2Real** | 31 | Dreamer / V-JEPA / 域随机化 / Isaac Lab，人形和四足公司重点 |
+| [五](docs/interviews/05_engineering.html) | **工程落地**（含 §H 手撕） | 62 | VLA 部署 / FSDP / teleop 数据飞轮 / Agent 与 Harness 平台实录 + 手撕（数值稳定 softmax / CE / KL / Adam） |
+| [六](docs/interviews/06_legged_control.html) | **腿足机器人控制 / 遥操作**（含 §H 手撕） | 55 | 浮动基座、MPC / WBC、RL-locomotion、AVP teleop、HumanPlus、actuator network sim2real + 手撕（PID / KF / EKF / LQR / 四元数 / IK / 互补滤波 / DH / MPC QP） |
+| [七](docs/interviews/07_perception_nav.html) | **3D 感知 / SLAM / VLN / ObjectNav / Embodied VLM**（含 §H 手撕） | 67 | 点云 / NeRF / SLAM / Nav2 / HAMT / NaVid / VLFM / SAM 2 + 手撕（IoU / NMS / BFS·DFS / A* / ViT patch） |
+| [八](docs/interviews/08_coding_systemdesign.html) | **通用工程：LeetCode + 系统设计** | 40 | LeetCode 高频 30 题 + ML 系统设计 5 + 机器人系统设计 5（所有具身 / 自动驾驶岗通用） |
+| [九](docs/interviews/09_frontier.html) | **🔥 近期热门方向与前沿题目** | 8 | Jev / RoboJEV / Astra 机械臂与 VLA / 具身 Agent 与 Harness / RSI；非面经拓展 |
 
-**主表及补充共 425 题**，另含 ~19 题低频备选（每卷末单列）。**新增 §H 手撕代码**散布在卷一/二/三/五/六/七（共 54 题），**新增第八卷**专攻 LeetCode 与系统设计（40 题）。
-
----
-
-## 更新记录
-
-- **2026-05-20**：项目初始化，开始从公开面经与学习资料中整理具身智能面试知识框架。
-- **2026-05-21**：重构为多卷面试题库，参考牛客、知乎、CSDN、GitHub 公开面经等来源，按"同义题合并、频次优先"筛选主表题。
-- **2026-05-22**：补齐八卷主体内容，并加入手撕代码题，覆盖深度学习、强化学习、VLA / IL、工程部署、感知导航和系统设计。
-- **2026-06-06**：修复 Markdown 到 HTML 的公式与表格转义问题，保证变量、公式和表格能稳定渲染。
-- **2026-07-11**：参考 CSDN 帖《具身智能VLA面经总结（小鸡毛版）》及近期 VLA 面经趋势，补充数据链路、时间同步、真机排障、LoRA / PEFT、Flow Matching 等更贴近近期面试的问题。
+目录口径为**非 N 备选 445 题**（其中 437 道原有/实录题、8 道非面经拓展），另有 **19 题 N 备选**，合计 **464 个问答条目**。其中手撕题共 **84 题**：卷一至七共 54 题，卷八 30 题；卷八另有 10 道系统设计题。目录数字不是“高频题总数”。
 
 ---
 
 ## 特点
 
-- 🔥 **频次驱动**：题目来自牛客、知乎、小红书、一亩三分地、GitHub 公开面经，同义题合并后**频次 ≥3 才入主表**；近期集中出现但未满三源证据的内容用 **补充** 标签，不伪造频次
-- ✏️ **短答案**：每题 ≤350 字精简答案 + "易错"一句，面试前快速过；不写公式推导和代码块（要深入学习另找资源）
+- 🔥 **频次分层**：旧 🔥 沿用历史统计，本轮未全面重核；新高频须有至少三份独立面经，一至两份标“低频实录”。同一候选人同公司多轮、转载和镜像合并计数
+- 🔥 **近期热门方向**：卷九标题的火苗表示近期关注主题，不代表企业面试频次或量化热度排名。
+- 📚 **前沿拓展**：F 编号和“前沿拓展·非面经”标签表示依据技术资料整理的学习题，面经频次为 0，不称企业真题
+- ✏️ **短答案**：普通题目标为 ≤350 字精简答案 + “易错”；手撕题单列，包含代码
 - 📱 **折叠交互**：默认全部折起只看题目，点击展开答案；基于 HTML5 `<details>` 原生折叠，零 JS，手机端无需任何 app
-- 🔍 **跨模型审查**：每题答案经**另一组独立 AI**二次审查（执行者 ≠ 审查者），减少单一模型的事实错误
+- 🔍 **来源可查**：题目下方提供原始面经或论文、官方技术资料链接，便于核对适用范围
 - 🏷️ **难度标签**：L1 必会 · L2 进阶 · L3 顶级 lab，方便按层次规划复习
-- 🏢 **不分公司**：题目按技术主题组织，不打公司标签——同一道题可能在多家面试出现
+- 🏢 **按主题组织**：新题的题源注记保留公司、岗位和日期确定性，避免把平台岗问法泛化到算法岗
 
 ---
 
@@ -129,42 +126,26 @@
 
 ````markdown
 <details class="qa">
-<summary><span class="lv lv-l2">L2</span> <span class="freq">🔥×N</span> <b>Q??</b> · 你的题目？</summary>
+<summary><span class="lv lv-l2">L2</span> <span class="freq">低频实录·1源</span> <b>Q??</b> · 你的题目？</summary>
 
 **答**：精简答案（≤350 字）。
 
 **易错**：一句话点关键陷阱。
+
+**题源 / 核验**：[原始面经](原帖链接)，公司与岗位，面试日期；年份不明时明确注明。另列核答案所用论文或官方文档。
 
 </details>
 ````
 
 或者直接在 issue 里描述题目 + 来源（哪个平台 / 帖子链接），维护者负责合并到对应卷。
 
-**贡献题源要求**：必须来自**公开面经**（牛客 / 知乎 / 小红书 / 一亩三分地 / GitHub awesome-* 等），不接受个人编造的"我觉得会考"题——这条规则是题库可信度的基石。
+**贡献题源要求**：提供能读取正文、定位具体原问的原始公开面经。汇编或 GitHub 列表应追溯原帖；教程、招聘要求与论文不能计面经频次。不得提交个人猜测的“我觉得会考”题。
 
 ---
 
-## 项目幕后 · Vibe Coding 实战记录
+## 致谢
 
-本项目本身就是一次完整的 **vibe coding** 实践案例——八卷题库的题源调研、答案起草、跨模型审查、HTML 渲染、Git 发布主要由 AI agent 自动完成，维护者负责最终验收、题源取舍和文案微调。
-
-**调度模式**：
-
-- 主控 Claude Code（Opus 4.7 · 1M context）串行派遣多个 subagent，每个 agent 独立完成 1 卷的完整 7 阶段工作流（调研 → 起草 → 跨模型审查 → 渲染 → 发布）；当前已完成 8 卷题库
-- 每个 agent 在 fresh context 里工作，互不污染——避免了"长上下文导致质量衰退"和"需要手动 /clear"两个痛点
-- 跨模型审查由独立的 Codex（GPT-5.5 xhigh）通过 MCP 协议完成，每轮 fresh-thread，多轮收敛
-- 执行者（Claude）≠ 审查者（GPT-5.5），是题库可信度的核心不变量
-
-**展示的工程实践**：
-
-- **Multi-agent 编排**：subagent prompt 自包含、status code 协议（DONE / WARN / FAIL / BLOCKED）、用户审批回退路径
-- **跨模型协作 via MCP**：Codex MCP server 集成、`sandbox=read-only` + `approval-policy=never` 双权限层、隐私脱敏 banlist 硬编码在审查 prompt
-- **内容质量 SLO**：频次合并阈值（≥3 入主表）、字数 PASS/WARN/FAIL 阈值、强制收尾的容错策略（>7 轮无收敛即推当前最佳版本，避免单卷阻塞全局）
-- **经验沉淀回流**：每完成一卷的实战教训写回 [`CLAUDE.md`](CLAUDE.md) §11，下卷自动继承——形成可复用、可演化的 prompt 流程
-
-**致谢**：本项目的"睡眠期自动化研究"流水线灵感和 HTML 渲染脚本来自 [**ARIS · Auto-claude-code-research-in-sleep**](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep) —— 一个把 Claude Code 用作"研究协作 AI"的开源项目，感谢其提供的核心思路。
-
-如果你对"AI 写 + AI 审 + 自动发布"这种 pipeline 感兴趣，欢迎 fork 改造成其他方向题库（金融 / 后端 / 系统设计 / 算法 …），MIT 自由。
+HTML 渲染脚本参考 [ARIS · Auto-claude-code-research-in-sleep](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep)。
 
 ---
 
